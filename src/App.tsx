@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import AskFood from './components/AskFood'
 import PrefsForm from './components/PrefsForm'
+import RecipeView from './components/RecipeView'
 import { Alert, Icon, Modal, Spinner } from './components/ui'
 import { getProfile, isPremium, verifyPayment, type ProfileRow } from './lib/api'
 import { weekStart } from './lib/planner'
@@ -108,6 +109,7 @@ export default function App() {
 
       <AskFood open={ai.open} prompt={ai.prompt} onOpen={() => setAi({ open: true })} onClose={() => setAi({ open: false })} weekStart={`${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`}
         onChanged={() => { setReloadKey((k) => k + 1); loadProfile() }} onUpgrade={upgrade} />
+      <RecipeView premium={premium} household={profile.household} onUpgrade={upgrade} />
       <NewPassword open={recovery} onDone={() => setRecovery(false)} />
     </div>
   )

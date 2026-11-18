@@ -2,6 +2,7 @@
 import { callFunction, supabase } from './supabase'
 import COUNTRY_LIST from './countries.json'
 import type { Allergy, Diet, Food, Goal, Meal, PlanItem } from './planner'
+import type { Recipe } from './recipe'
 
 export const FOOD_COLS = 'id, country_code, name, description, meals, serving, kcal, protein_g, carbs_g, fat_g, fibre_g, tags, ingredients, cost_level, prep_minutes, source, owner_id'
 
@@ -150,4 +151,11 @@ export const verifyPayment = (reference: string) =>
 // ---------- Ask AI ----------
 export type AiMsg = { role: 'user' | 'assistant'; content: string }
 export const askFood = (messages: AiMsg[], weekStart: string, today: string) =>
-  callFunction<{ reply: string; changed: boolean; used_today: number; daily_limit: number; premium: boolean }>('food-ai', { messages, week_start: weekStart, today })
+  callFunction<{ reply: string; changed: boolean; recipe?: { food_id: string; name: string } | null; used_today: number; daily_limit: number; premium: boolean }>('food-ai', { messages, week_start: weekStart, today })
+
+// ---------- recipes (Premium) ----------
+export const getRecipe = (foodId: string) =>
+  callFunction<{ recipe?: Recipe; video_search?: string; premium_needed?: boolean; error?: string }>('food-recipe', { food_id: foodId })
+
+/** Opens the recipe window from anywhere in the app (planner, Explore, Ask AI). */
+export const openRecipe = (food: { id: string; name: string }) => window.dispatchEvent(new CustomEvent('cdmfood:recipe', { detail: food }))

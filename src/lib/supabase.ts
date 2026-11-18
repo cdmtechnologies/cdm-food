@@ -19,8 +19,9 @@ export async function callFunction<T = Record<string, unknown>>(name: string, bo
     throw new Error(msg || 'Something went wrong. Please try again.')
   }
   if (data && typeof data === 'object' && 'error' in data && (data as { error?: string }).error) {
-    const e = new Error((data as { error: string }).error) as Error & { limited?: boolean }
+    const e = new Error((data as { error: string }).error) as Error & { limited?: boolean; premiumNeeded?: boolean }
     e.limited = !!(data as { limited?: boolean }).limited
+    e.premiumNeeded = !!(data as { premium_needed?: boolean }).premium_needed
     throw e
   }
   return data as T

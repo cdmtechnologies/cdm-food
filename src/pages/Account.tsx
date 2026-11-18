@@ -25,12 +25,13 @@ export default function Account({ profile, onSaved, email, payNote }: { profile:
       <section id="premium" className="card overflow-hidden">
         <div className="bg-gradient-to-r from-brand-700 to-brand-600 p-5 text-white">
           <div className="flex items-center gap-2 text-lg font-bold"><Icon.star /> CDM Food Premium</div>
-          <p className="mt-1 text-sm text-white/90">{premium ? `Active until ${new Date(profile.premium_until!).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}. Thank you!` : 'The full shopping list for your household and more Ask AI help every day.'}</p>
+          <p className="mt-1 text-sm text-white/90">{premium ? `Active until ${new Date(profile.premium_until!).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}. Thank you!` : 'Recipes with cooking videos, the full shopping list and more Ask AI help every day.'}</p>
         </div>
         <div className="space-y-3 p-5">
           {payNote && <Alert tone={payNote.tone}>{payNote.text}</Alert>}
           <ul className="grid gap-2 text-sm sm:grid-cols-2">
             <li>✅ Ask AI: {s ? `${s.premium_ai_daily} questions a day (free: ${s.free_ai_daily})` : 'many more questions every day'}</li>
+            <li>✅ Recipes, step-by-step cooking mode and short cooking videos</li>
             <li>✅ Full shopping list, ready to share or print</li>
             <li>✅ Health-focused plans (diabetes, blood pressure, weight)</li>
             <li>✅ Supports new countries and dishes</li>

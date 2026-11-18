@@ -26,6 +26,11 @@ export const Icon = {
   print: I(<><path d="M6 9V2h12v7" /><rect x="6" y="14" width="12" height="8" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /></>),
   copy: I(<><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>),
   star: I(<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />),
+  pot: I(<><path d="M3 11h18v3a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7z" /><path d="M1 11h2M21 11h2M8 7c0-1 1-1 1-2s-1-1-1-2M12 7c0-1 1-1 1-2s-1-1-1-2M16 7c0-1 1-1 1-2s-1-1-1-2" /></>),
+  play: I(<path d="M7 4v16l13-8z" />),
+  clock: I(<><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></>),
+  speaker: I(<><path d="M11 5 6 9H2v6h4l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></>),
+  external: I(<><path d="M15 3h6v6M10 14 21 3" /><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></>),
 }
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {

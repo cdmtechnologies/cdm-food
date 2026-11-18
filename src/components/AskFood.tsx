@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { askFood, type AiMsg } from '../lib/api'
+import { askFood, openRecipe, type AiMsg } from '../lib/api'
 import { iso } from '../lib/planner'
 import { AiRobot, MicIcon, robotState, SpeakerIcon, StopIcon, ThinkingDots, TypedText, useAiVoice, type RobotState } from './AiRobot'
 import { Icon } from './ui'
 
 /** Ask AI in CDM Food: changes the plan on request and answers food questions, with the animated robot. */
-let memory: AiMsg[] = []
+type Msg = AiMsg & { recipe?: { food_id: string; name: string } | null }
+let memory: Msg[] = []
 
 const STATUS: Record<RobotState, string> = {
   idle: 'Plans and changes your meals', still: 'Plans and changes your meals',
@@ -18,12 +19,13 @@ export const AI_STARTERS = [
   'I want cheaper meals this week',
   'Swap Wednesday dinner for something lighter',
   'Add more protein to my breakfasts',
+  "How do I cook today's dinner?",
 ]
 
 export default function AskFood({ open, onOpen, onClose, weekStart, onChanged, onUpgrade, prompt }: {
   open: boolean; onOpen: () => void; onClose: () => void; weekStart: string; onChanged: () => void; onUpgrade: () => void; prompt?: string
 }) {
-  const [msgs, setMsgs] = useState<AiMsg[]>(memory)
+  const [msgs, setMsgs] = useState<Msg[]>(memory)
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -50,12 +52,13 @@ export default function AskFood({ open, onOpen, onClose, weekStart, onChanged, o
     if (!question || busy) return
     setErr(''); setLimited(false)
     v.hush()
-    const next: AiMsg[] = [...msgs, { role: 'user', content: question }]
+    const next: Msg[] = [...msgs, { role: 'user', content: question }]
     setMsgs(next); setText(''); setBusy(true)
     try {
-      const r = await askFood(next, weekStart, iso(new Date()))
+      const r = await askFood(next.map(({ role, content }) => ({ role, content })), weekStart, iso(new Date()))
       const at = next.length
-      setMsgs([...next, { role: 'assistant', content: r.reply }])
+      setMsgs([...next, { role: 'assistant', content: r.reply, recipe: r.recipe ?? null }])
+      if (r.recipe) { const rc = r.recipe; setTimeout(() => { onClose(); openRecipe({ id: rc.food_id, name: rc.name }) }, 1800) }
       setTyping(at)
       if (v.voiceOn || spoken) v.say(r.reply, at)
       if (r.changed) onChanged()
@@ -121,6 +124,9 @@ export default function AskFood({ open, onOpen, onClose, weekStart, onChanged, o
                 <AiRobot size={30} className="text-brand-700" state={i !== lastReply ? 'still' : v.speaking === i ? 'talking' : typing === i ? 'writing' : 'still'} />
                 <div className="max-w-[82%] whitespace-pre-wrap break-words rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-2 text-slate-800">
                   {typing === i ? <TypedText text={m.content} onDone={() => setTyping((t) => (t === i ? null : t))} /> : <><span className="sr-only">Ask AI: </span>{m.content}</>}
+                  {m.recipe && typing !== i && (
+                    <button type="button" onClick={() => { onClose(); openRecipe({ id: m.recipe!.food_id, name: m.recipe!.name }) }} className="btn btn-primary mt-2 w-full py-1.5 text-xs"><Icon.pot className="h-4 w-4" /> Open recipe: {m.recipe.name}</button>
+                  )}
                   {v.speakable && typing !== i && (
                     <button type="button" onClick={() => (v.speaking === i ? v.hush() : v.say(m.content, i))} className="mt-1 flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800">
                       {v.speaking === i ? <><StopIcon /> Stop</> : <><SpeakerIcon size={14} /> Listen</>}

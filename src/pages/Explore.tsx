@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CountrySelect } from '../components/PrefsForm'
 import { Alert, cost, Icon, kcal, Modal, Spinner, Tags } from '../components/ui'
-import { addPlanItems, cachedAt, countries, countryFoods, countryName, flag, loadCountryMenu, type Country, type ProfileRow } from '../lib/api'
+import { addPlanItems, cachedAt, openRecipe, countries, countryFoods, countryName, flag, loadCountryMenu, type Country, type ProfileRow } from '../lib/api'
 import { dayLabel, isVegan, isVegetarian, iso, MEAL_LABEL, MEALS, unsuitable, weekDays, type Food, type Meal } from '../lib/planner'
 
 type Filter = Meal | 'all' | 'veg' | 'vegan' | 'suits' | 'high_protein' | 'high_fibre' | 'light' | 'low_gi'
@@ -169,6 +169,7 @@ export function FoodDetail({ food, profile, weekStartDate, onClose, onPlanned }:
         <Tags food={food} max={10} />
         {food.ingredients.length > 0 && <div><div className="label">Main ingredients</div><p className="text-sm text-slate-700">{food.ingredients.join(', ')}</p></div>}
         <div className="text-sm text-slate-600">{food.prep_minutes ? `About ${food.prep_minutes} minutes to prepare` : ''}{food.cost_level ? ` · ${cost(food.cost_level)}` : ''}</div>
+        <button type="button" className="btn btn-ghost w-full" onClick={() => { const f = food; onClose(); openRecipe(f) }}><Icon.pot /> Recipe, cooking steps and videos</button>
         {why ? <Alert>{why}. It does not suit your settings.</Alert> : (
           <div className="rounded-2xl border border-slate-200 p-3">
             <div className="label">Add to my plan</div>

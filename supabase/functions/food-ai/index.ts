@@ -26,6 +26,7 @@ How to work:
 - If they want a food that is not in the catalogue, use add_food with your best estimate of its nutrition for one typical serving, then plan it. Say the figures are estimates.
 - Only change their saved preferences (diet, allergies, health goals, calorie target, meals) when they ask you to, using update_preferences.
 - Locked meals are ones the person chose to keep: do not change them unless they say so.
+- When they ask how to cook a dish, for a recipe or for cooking videos, find the food (search_foods, or add_food if it is missing) and call show_recipe. With Premium, the app then opens the full recipe, step-by-step cooking mode and short videos: just say it is open. Without Premium, give a short outline (main ingredients and 3 or 4 key steps) and say the full recipe with timed steps and videos comes with Premium.
 
 Health and safety:
 - You are not a doctor or dietitian. For medical conditions (diabetes, blood pressure, kidney or heart disease, pregnancy, allergies) give general healthy-eating guidance and suggest they confirm with their doctor or a dietitian, especially if they take medicine.
@@ -33,7 +34,7 @@ Health and safety:
 - If someone seems to be struggling with eating (fear of food, bingeing, purging, extreme restriction), do not give calorie or weight numbers; respond kindly and encourage them to talk to a doctor or someone they trust.
 - Nutrition figures in CDM Food are approximate.`
 
-type Ctx = { db: ReturnType<typeof createClient>; uid: string; today: string; profile: Profile & { country_code: string | null; notes: string | null }; changed: boolean }
+type Ctx = { db: ReturnType<typeof createClient>; uid: string; today: string; profile: Profile & { country_code: string | null; notes: string | null }; changed: boolean; premium: boolean; recipe: { food_id: string; name: string } | null }
 
 async function myFoods(c: Ctx, ids: string[]): Promise<Map<string, Food>> {
   if (!ids.length) return new Map()
@@ -210,6 +211,19 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
   },
   {
     def: {
+      name: 'show_recipe', description: 'Open the recipe, cooking steps and short cooking videos for one food in the app (Premium). Use the food_id from search_foods, get_plan or add_food.',
+      input_schema: { type: 'object', required: ['food_id'], properties: { food_id: { type: 'string' } } },
+    },
+    async run(c, i) {
+      const { data } = await c.db.from('foods').select('id, name').eq('id', String(i.food_id)).maybeSingle()
+      if (!data) return { shown: false, error: 'Food not found. Search for it first.' }
+      if (!c.premium) return { shown: false, premium_needed: true, name: data.name }
+      c.recipe = { food_id: data.id, name: data.name }
+      return { shown: true, name: data.name }
+    },
+  },
+  {
+    def: {
       name: 'update_preferences', description: "Change the person's saved preferences, only when they ask.",
       input_schema: {
         type: 'object', properties: {
@@ -260,7 +274,7 @@ Deno.serve(async (req) => {
     const { data: prof } = await db.from('profiles').select('country_code, diet, allergies, goals, daily_kcal, meals, household, notes').eq('id', user.id).maybeSingle()
     const today = isDay(body.today) ? body.today : new Date().toISOString().slice(0, 10)
     const ctx: Ctx = {
-      db, uid: user.id, today, changed: false,
+      db, uid: user.id, today, changed: false, premium: !!g.premium, recipe: null,
       profile: { country_code: prof?.country_code ?? null, diet: prof?.diet ?? 'none', allergies: prof?.allergies ?? [], goals: prof?.goals ?? [], daily_kcal: prof?.daily_kcal ?? null, meals: (prof?.meals ?? ['breakfast', 'lunch', 'dinner']) as Meal[], household: prof?.household ?? 1, notes: prof?.notes ?? null },
     }
     const week = isDay(body.week_start) ? body.week_start : today
@@ -295,7 +309,7 @@ Deno.serve(async (req) => {
     }
     await admin.rpc('ai_add_tokens', { p_user: user.id, p_in: inTok, p_out: outTok })
     if (!reply) reply = ctx.changed ? 'Done. Your plan is updated.' : 'Sorry, I could not answer that. Try asking in a different way.'
-    return json({ reply, changed: ctx.changed, used_today: g.used_today, daily_limit: g.daily_limit, premium: g.premium })
+    return json({ reply, changed: ctx.changed, recipe: ctx.recipe, used_today: g.used_today, daily_limit: g.daily_limit, premium: g.premium })
   } catch (e) {
     console.error('food-ai', (e as Error).message)
     return json({ error: 'Ask AI could not answer just now. Please try again in a moment.' })

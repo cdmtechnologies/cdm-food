@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import FoodForm from '../components/FoodForm'
 import FoodPicker from '../components/FoodPicker'
 import { Alert, Icon, kcal, Modal, Spinner } from '../components/ui'
-import { addPlanItems, clearPlan, countryFoods, deletePlanItem, foodsByIds, myFoods, planRange, updatePlanItem, type ProfileRow } from '../lib/api'
+import { addPlanItems, clearPlan, openRecipe, countryFoods, deletePlanItem, foodsByIds, myFoods, planRange, updatePlanItem, type ProfileRow } from '../lib/api'
 import { dailyTarget, dayLabel, fillWeek, iso, MEAL_LABEL, mealTargets, totals, weekDays, weekStart, type Food, type Meal, type PlanItem } from '../lib/planner'
 
 const MEAL_ICON: Record<Meal, string> = { breakfast: '🍳', lunch: '🍲', dinner: '🍛', snack: '🍎' }
@@ -169,6 +169,7 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
                             </div>
                           </div>
                           <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                            {f && <button type="button" className="chip chip-off py-0.5 text-brand-800" onClick={() => openRecipe(f)}><Icon.pot className="h-3.5 w-3.5" /> Recipe</button>}
                             <button type="button" className="chip chip-off py-0.5" onClick={() => setPick({ meal, replace: it })} disabled={it.locked}><Icon.swap className="h-3.5 w-3.5" /> Swap</button>
                             <button type="button" className={`chip py-0.5 ${it.locked ? 'chip-on' : 'chip-off'}`} aria-pressed={it.locked} onClick={() => run('lock', () => updatePlanItem(it.id!, { locked: !it.locked }))}
                               title="Locked meals stay when you fill or clear the week, and Ask AI leaves them alone">{it.locked ? <Icon.lock className="h-3.5 w-3.5" /> : <Icon.unlock className="h-3.5 w-3.5" />} {it.locked ? 'Locked' : 'Lock'}</button>
