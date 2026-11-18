@@ -53,6 +53,8 @@ Deno.serve(async (req) => {
     const { data: { user } } = await db.auth.getUser()
     if (!user) return json({ error: 'Please sign in again.' }, 401)
     if (!KEY) return json({ error: 'This needs Ask AI, which is not set up yet.' })
+    const { data: sw } = await admin.from('settings').select('ai_enabled').maybeSingle()
+    if (sw && sw.ai_enabled === false) return json({ error: 'AI help is paused for a short while. Please try again later.' })
     const body = await req.json().catch(() => ({}))
 
     if (body.action === 'load') {

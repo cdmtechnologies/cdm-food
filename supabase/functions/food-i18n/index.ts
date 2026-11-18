@@ -59,6 +59,8 @@ Deno.serve(async (req) => {
   if (!isLang(lang) || lang === 'en') return json({ error: 'Unknown language' }, 400)
   if (!KEY) return json({ error: 'Translations are not set up yet.' })
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } })
+  const { data: sw } = await admin.from('settings').select('ai_enabled').maybeSingle()
+  if (sw && sw.ai_enabled === false) return json({ error: 'AI help is paused for a short while. Please try again later.' })
   try {
     const have = new Set<string>()
     for (let from = 0; from < 5000; from += 1000) {

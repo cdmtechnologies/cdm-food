@@ -57,7 +57,7 @@ async function makeRecipe(food: Record<string, unknown>, countryName: string, la
   const j = await r.json()
   if (!r.ok) throw new Error(j?.error?.message ?? `AI error ${r.status}`)
   const use = (j.content ?? []).find((b: { type: string }) => b.type === 'tool_use')
-  return cleanRecipe(use?.input)
+  return { recipe: cleanRecipe(use?.input), tokensIn: Number(j.usage?.input_tokens ?? 0), tokensOut: Number(j.usage?.output_tokens ?? 0) }
 }
 
 async function findVideos(q: string): Promise<Video[]> {
@@ -97,9 +97,13 @@ Deno.serve(async (req) => {
     let { data: row } = await admin.from('recipes').select('*').eq('food_id', foodId).eq('lang', lang).maybeSingle()
     if (!row) {
       if (!KEY) return json({ error: 'Recipes are not set up yet.' })
+      const { data: sw } = await admin.from('settings').select('ai_enabled').maybeSingle()
+      if (sw && sw.ai_enabled === false) return json({ error: 'AI help is paused for a short while. Please try again later.' })
       const { data: gate } = await admin.rpc('recipe_take', { p_user: user.id })
       if (!gate?.[0]?.allowed) return json({ error: "You have opened a lot of new recipes today. Recipes you have already opened still work; new ones are back tomorrow." })
-      const recipe = await makeRecipe(food, country?.name ?? '', lang)
+      const made = await makeRecipe(food, country?.name ?? '', lang)
+      await admin.rpc('ai_add_tokens', { p_user: user.id, p_in: made.tokensIn, p_out: made.tokensOut })
+      const recipe = made.recipe
       if (!recipe) return json({ error: 'The recipe did not come out right. Please try again.' })
       const ins = await admin.from('recipes').upsert({ food_id: foodId, lang, ...recipe, source: 'ai' }, { onConflict: 'food_id,lang', ignoreDuplicates: true }).select('*').maybeSingle()
       row = ins.data ?? (await admin.from('recipes').select('*').eq('food_id', foodId).eq('lang', lang).maybeSingle()).data
