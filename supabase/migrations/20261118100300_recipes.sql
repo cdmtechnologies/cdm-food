@@ -1,10 +1,11 @@
 -- Recipes and cooking videos (Premium).
--- A recipe is made once per food by AI and then shared by everyone who can see that food. Recipes for a person's own
+-- A recipe is made once per food and language by AI and then shared by everyone who can see that food. Recipes for a person's own
 -- foods stay private to them because the edge function only reads foods through that person's login.
 -- Nobody reads this table directly: the food-recipe edge function checks Premium and then reads it with the service role.
 
 CREATE TABLE public.recipes (
-  food_id uuid PRIMARY KEY REFERENCES public.foods (id) ON DELETE CASCADE,
+  food_id uuid NOT NULL REFERENCES public.foods (id) ON DELETE CASCADE,
+  lang text NOT NULL DEFAULT 'en' CHECK (lang ~ '^[a-z]{2,3}(-[A-Za-z]{2,4})?$'),
   serves smallint NOT NULL CHECK (serves BETWEEN 1 AND 12),
   ingredients jsonb NOT NULL CHECK (jsonb_typeof(ingredients) = 'array' AND jsonb_array_length(ingredients) BETWEEN 1 AND 30),
   steps jsonb NOT NULL CHECK (jsonb_typeof(steps) = 'array' AND jsonb_array_length(steps) BETWEEN 1 AND 20),
@@ -13,7 +14,8 @@ CREATE TABLE public.recipes (
   videos jsonb NOT NULL DEFAULT '[]' CHECK (jsonb_typeof(videos) = 'array' AND jsonb_array_length(videos) <= 6),
   videos_at timestamptz,
   source text NOT NULL DEFAULT 'ai' CHECK (source IN ('ai', 'cdm')),
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (food_id, lang)
 );
 ALTER TABLE public.recipes ENABLE ROW LEVEL SECURITY;
 -- no policies: only the service role (inside food-recipe) can read or write

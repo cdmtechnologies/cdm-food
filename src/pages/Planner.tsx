@@ -3,7 +3,8 @@ import FoodForm from '../components/FoodForm'
 import FoodPicker from '../components/FoodPicker'
 import { Alert, Icon, kcal, Modal, Spinner } from '../components/ui'
 import { addPlanItems, clearPlan, openRecipe, countryFoods, deletePlanItem, foodsByIds, myFoods, planRange, updatePlanItem, type ProfileRow } from '../lib/api'
-import { dailyTarget, dayLabel, fillWeek, iso, MEAL_LABEL, mealTargets, totals, weekDays, weekStart, type Food, type Meal, type PlanItem } from '../lib/planner'
+import { dailyTarget, dayLabel, weekdayShort, eatenTotals, fillWeek, iso, isLogged, MEAL_LABEL, mealTargets, totals, weekDays, weekStart, type Food, type Meal, type MealStatus, type PlanItem } from '../lib/planner'
+import { locale, t } from '../i18n'
 
 const MEAL_ICON: Record<Meal, string> = { breakfast: '🍳', lunch: '🍲', dinner: '🍛', snack: '🍎' }
 
@@ -17,8 +18,9 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
   const [foods, setFoods] = useState<Map<string, Food>>(new Map())
   const [busy, setBusy] = useState('')
   const [err, setErr] = useState('')
-  const [pick, setPick] = useState<{ meal: Meal; replace?: PlanItem } | null>(null)
-  const [adding, setAdding] = useState<Meal | null>(null)
+  const [pick, setPick] = useState<{ meal: Meal; replace?: PlanItem; ate?: PlanItem } | null>(null)
+  const [adding, setAdding] = useState<{ meal: Meal; ate?: PlanItem } | null>(null)
+  const [other, setOther] = useState<PlanItem | null>(null) // "had something else"
   const target = dailyTarget(profile)
   const mealT = mealTargets(profile.meals, target)
 
@@ -40,6 +42,8 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
     setBusy('')
   }
 
+  const mark = (it: PlanItem, status: MealStatus) => run('mark', () => updatePlanItem(it.id!, { status, ate_food_id: null, ate_servings: null, ate_note: null, ate_kcal: null }))
+
   const fill = () => run('fill', async () => {
     if (!profile.country_code) throw new Error('Choose your country in Account first.')
     const [country, mine] = await Promise.all([countryFoods(profile.country_code), myFoods()])
@@ -48,16 +52,17 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
     if (!add.length) throw new Error('Every meal this week is already planned. Clear the week first to start again.')
     await addPlanItems(add)
   })
-  const clear = () => { if (window.confirm('Remove every meal this week, except the ones you locked?')) run('clear', () => clearPlan(days[0], days[6])) }
+  const clear = () => { if (window.confirm(t('Remove every meal this week, except the ones you locked or ticked?'))) run('clear', () => clearPlan(days[0], days[6])) }
 
   function picked(f: Food) {
     const p = pick
     setPick(null)
     if (p) place(f, p)
   }
-  async function place(f: Food, p: { meal: Meal; replace?: PlanItem }) {
+  async function place(f: Food, p: { meal: Meal; replace?: PlanItem; ate?: PlanItem }) {
     setFoods((m) => new Map(m).set(f.id, f))
-    if (p.replace?.id) await run('swap', () => updatePlanItem(p.replace!.id!, { food_id: f.id }))
+    if (p.ate?.id) await run('ate', () => updatePlanItem(p.ate!.id!, { status: 'swapped', ate_food_id: f.id, ate_servings: 1, ate_note: null, ate_kcal: null }))
+    else if (p.replace?.id) await run('swap', () => updatePlanItem(p.replace!.id!, { food_id: f.id }))
     else {
       const pos = (items ?? []).filter((i) => i.day === day && i.meal === p.meal).length
       const servings = f.kcal ? Math.min(2, Math.max(0.5, Math.round((mealT[p.meal] || 500) / f.kcal * 2) / 2)) : 1
@@ -66,8 +71,10 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
   }
 
   const dayItems = (d: string) => (items ?? []).filter((i) => i.day === d)
-  const t = totals(dayItems(day), foods)
-  const pct = Math.min(100, Math.round((t.kcal / target) * 100))
+  const tot = totals(dayItems(day), foods)
+  const eaten = eatenTotals(dayItems(day), foods)
+  const canTick = day <= todayIso
+  const pct = Math.min(100, Math.round((tot.kcal / target) * 100))
   const shown = new Set<Meal>([...profile.meals, ...dayItems(day).map((i) => i.meal)])
   const weekEmpty = items !== null && items.length === 0
 
@@ -99,7 +106,7 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
           return (
             <button key={d} role="tab" aria-selected={on} type="button" onClick={() => setDay(d)}
               className={`rounded-2xl border px-1 py-2 text-center transition ${on ? 'border-brand-700 bg-brand-700 text-white' : 'border-slate-200 bg-white hover:border-brand-600'}`}>
-              <div className={`text-[11px] font-medium uppercase ${on ? 'text-white/80' : 'text-slate-500'}`}>{dayLabel(d).split(' ')[0].replace(',', '')}</div>
+              <div className={`text-[11px] font-medium uppercase ${on ? 'text-white/80' : 'text-slate-500'}`}>{weekdayShort(d)}</div>
               <div className="text-lg font-bold leading-tight">{Number(d.slice(8))}</div>
               <div className={`mx-auto mt-1 h-1.5 w-8 overflow-hidden rounded-full ${on ? 'bg-white/30' : 'bg-slate-100'}`}>
                 <div className={`h-full rounded-full ${on ? 'bg-white' : k > target * 1.15 ? 'bg-spice-500' : 'bg-brand-600'}`} style={{ width: `${Math.min(100, (k / target) * 100)}%` }} />
@@ -116,19 +123,23 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
             <div className="flex flex-wrap items-end justify-between gap-2">
               <div>
                 <div className="text-sm text-slate-500">{dayLabel(day)}</div>
-                <div className="text-2xl font-bold">{t.kcal.toLocaleString()} <span className="text-base font-medium text-slate-500">of {target.toLocaleString()} kcal</span></div>
+                <div className="text-2xl font-bold">{tot.kcal.toLocaleString()} <span className="text-base font-medium text-slate-500">of {target.toLocaleString()} kcal</span></div>
               </div>
               <div className="flex gap-4 text-sm">
-                <div><div className="text-slate-500">Protein</div><b>{t.protein_g} g</b></div>
-                <div><div className="text-slate-500">Carbs</div><b>{t.carbs_g} g</b></div>
-                <div><div className="text-slate-500">Fat</div><b>{t.fat_g} g</b></div>
-                <div><div className="text-slate-500">Fibre</div><b>{t.fibre_g} g</b></div>
+                <div><div className="text-slate-500">Protein</div><b>{tot.protein_g} g</b></div>
+                <div><div className="text-slate-500">Carbs</div><b>{tot.carbs_g} g</b></div>
+                <div><div className="text-slate-500">Fat</div><b>{tot.fat_g} g</b></div>
+                <div><div className="text-slate-500">Fibre</div><b>{tot.fibre_g} g</b></div>
               </div>
             </div>
             <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
-              <div className={`h-full rounded-full ${t.kcal > target * 1.15 ? 'bg-spice-500' : 'bg-brand-600'}`} style={{ width: `${pct}%` }} />
+              <div className={`h-full rounded-full ${tot.kcal > target * 1.15 ? 'bg-spice-500' : 'bg-brand-600'}`} style={{ width: `${pct}%` }} />
             </div>
-            {t.unknown > 0 && <p className="mt-2 text-xs text-slate-500">{t.unknown} food{t.unknown > 1 ? 's have' : ' has'} no nutrition figures, so the total is lower than the real amount.</p>}
+            {canTick && eaten.logged > 0 && (
+              <p className="mt-2 text-sm text-slate-700"><b>{t('Eaten: {kcal} kcal', { kcal: eaten.kcal.toLocaleString(locale()) })}</b> · {t('{done} of {all} meals as planned', { done: eaten.followed, all: eaten.planned })}</p>
+            )}
+            {canTick && eaten.logged === 0 && tot.kcal > 0 && <p className="mt-2 text-xs text-slate-500">{t('Tick each meal when you have it, so you can see what you really ate.')}</p>}
+            {tot.unknown > 0 && <p className="mt-2 text-xs text-slate-500">{tot.unknown} food{tot.unknown > 1 ? 's have' : ' has'} no nutrition figures, so the total is lower than the real amount.</p>}
           </div>
 
           {weekEmpty && (
@@ -154,10 +165,10 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
                     {list.map((it) => {
                       const f = foods.get(it.food_id)
                       return (
-                        <li key={it.id} className={`rounded-xl border p-3 ${it.locked ? 'border-brand-200 bg-brand-50' : 'border-slate-100 bg-slate-50'}`}>
+                        <li key={it.id} className={`rounded-xl border p-3 ${it.status === 'eaten' ? 'border-brand-200 bg-brand-50' : it.status === 'skipped' ? 'border-slate-200 bg-white opacity-75' : it.status === 'swapped' ? 'border-spice-500/40 bg-spice-50' : it.locked ? 'border-brand-200 bg-brand-50' : 'border-slate-100 bg-slate-50'}`}>
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <div className="font-semibold">{f?.owner_id ? '⭐ ' : ''}{f?.name ?? 'Food'}</div>
+                              <div className={`font-semibold ${it.status === 'skipped' || it.status === 'swapped' ? 'text-slate-500 line-through' : ''}`}>{f?.owner_id ? '⭐ ' : ''}{f?.name ?? t('Food')}</div>
                               <div className="text-xs text-slate-500">{f?.serving}{f?.kcal != null ? ` · ${kcal(f.kcal * it.servings)}` : ''}</div>
                             </div>
                             <div className="flex shrink-0 items-center gap-0.5">
@@ -168,9 +179,17 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
                                 onClick={() => run('serv', () => updatePlanItem(it.id!, { servings: Math.min(4, it.servings + 0.5) }))}><Icon.plus /></button>
                             </div>
                           </div>
+                          {isLogged(it) && <Logged it={it} foods={foods} />}
+                          {canTick && (
+                            <div className="mt-2 flex flex-wrap gap-1.5 text-xs" role="group" aria-label={t('What happened at this meal?')}>
+                              <button type="button" aria-pressed={it.status === 'eaten'} className={`chip py-0.5 ${it.status === 'eaten' ? 'chip-on' : 'chip-off'}`} disabled={!!busy} onClick={() => mark(it, it.status === 'eaten' ? 'planned' : 'eaten')}><Icon.check className="h-3.5 w-3.5" /> {t('Eaten')}</button>
+                              <button type="button" aria-pressed={it.status === 'skipped'} className={`chip py-0.5 ${it.status === 'skipped' ? 'chip-on' : 'chip-off'}`} disabled={!!busy} onClick={() => mark(it, it.status === 'skipped' ? 'planned' : 'skipped')}><Icon.x className="h-3.5 w-3.5" /> {t('Skipped')}</button>
+                              <button type="button" aria-pressed={it.status === 'swapped'} className={`chip py-0.5 ${it.status === 'swapped' ? 'chip-on' : 'chip-off'}`} disabled={!!busy} onClick={() => setOther(it)}><Icon.swap className="h-3.5 w-3.5" /> {t('Had something else')}</button>
+                            </div>
+                          )}
                           <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
                             {f && <button type="button" className="chip chip-off py-0.5 text-brand-800" onClick={() => openRecipe(f)}><Icon.pot className="h-3.5 w-3.5" /> Recipe</button>}
-                            <button type="button" className="chip chip-off py-0.5" onClick={() => setPick({ meal, replace: it })} disabled={it.locked}><Icon.swap className="h-3.5 w-3.5" /> Swap</button>
+                            <button type="button" className="chip chip-off py-0.5" onClick={() => setPick({ meal, replace: it })} disabled={it.locked || isLogged(it)}><Icon.swap className="h-3.5 w-3.5" /> Swap</button>
                             <button type="button" className={`chip py-0.5 ${it.locked ? 'chip-on' : 'chip-off'}`} aria-pressed={it.locked} onClick={() => run('lock', () => updatePlanItem(it.id!, { locked: !it.locked }))}
                               title="Locked meals stay when you fill or clear the week, and Ask AI leaves them alone">{it.locked ? <Icon.lock className="h-3.5 w-3.5" /> : <Icon.unlock className="h-3.5 w-3.5" />} {it.locked ? 'Locked' : 'Lock'}</button>
                             <button type="button" className="chip chip-off py-0.5 text-red-700" onClick={() => run('del', () => deletePlanItem(it.id!))}><Icon.trash className="h-3.5 w-3.5" /> Remove</button>
@@ -191,10 +210,57 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
       )}
 
       <FoodPicker open={!!pick} meal={pick?.meal ?? 'lunch'} profile={profile} country={profile.country_code} onPick={picked} onClose={() => setPick(null)}
-        onAddOwn={() => { setAdding(pick?.meal ?? 'lunch'); setPick(null) }} />
-      <Modal open={!!adding} title="Add your own food" onClose={() => setAdding(null)} wide>
-        {adding && <FoodForm country={profile.country_code} meal={adding} onCancel={() => setAdding(null)} onSaved={(f) => { const m = adding; setAdding(null); place(f, { meal: m }) }} />}
+        onAddOwn={() => { setAdding({ meal: pick?.meal ?? 'lunch', ate: pick?.ate }); setPick(null) }} />
+      <Modal open={!!adding} title={t('Add your own food')} onClose={() => setAdding(null)} wide>
+        {adding && <FoodForm country={profile.country_code} meal={adding.meal} onCancel={() => setAdding(null)} onSaved={(f) => { const a = adding; setAdding(null); place(f, a) }} />}
       </Modal>
+      <AteOther item={other} food={other ? foods.get(other.food_id) : undefined} onClose={() => setOther(null)}
+        onPickFood={(it) => { setOther(null); setPick({ meal: it.meal, ate: it }) }}
+        onSave={(it, note, kc) => { setOther(null); run('ate', () => updatePlanItem(it.id!, { status: 'swapped', ate_food_id: null, ate_servings: null, ate_note: note, ate_kcal: kc })) }} />
     </div>
+  )
+}
+
+/** Shows what really happened at a ticked meal. */
+function Logged({ it, foods }: { it: PlanItem; foods: Map<string, Food> }) {
+  if (it.status === 'eaten') return <p className="mt-1 text-xs font-semibold text-brand-800">✓ {t('Eaten as planned')}</p>
+  if (it.status === 'skipped') return <p className="mt-1 text-xs font-semibold text-slate-500">{t('Skipped')}</p>
+  const other = it.ate_food_id ? foods.get(it.ate_food_id) : null
+  const what = other ? other.name : it.ate_note ?? ''
+  const kc = other?.kcal != null ? Math.round(other.kcal * (it.ate_servings ?? 1)) : it.ate_kcal
+  return <p className="mt-1 text-xs font-semibold text-spice-600">⇄ {t('Had instead: {food}', { food: what })}{kc != null ? ` · ${kcal(kc)}` : ''}</p>
+}
+
+/** "Had something else": pick a food from the catalogue, or just type what it was. */
+function AteOther({ item, food, onClose, onPickFood, onSave }: {
+  item: PlanItem | null; food?: Food; onClose: () => void; onPickFood: (it: PlanItem) => void; onSave: (it: PlanItem, note: string, kcal: number | null) => void
+}) {
+  const [note, setNote] = useState('')
+  const [kc, setKc] = useState('')
+  useEffect(() => { setNote(item?.ate_note ?? ''); setKc(item?.ate_kcal != null ? String(item.ate_kcal) : '') }, [item])
+  if (!item) return null
+  const save = (e: { preventDefault: () => void }) => {
+    e.preventDefault()
+    if (!note.trim()) return
+    const n = kc.trim() ? Math.round(Number(kc)) : null
+    onSave(item, note.trim().slice(0, 200), n != null && n >= 0 && n <= 5000 ? n : null)
+  }
+  return (
+    <Modal open title={t('What did you have instead?')} onClose={onClose}>
+      <div className="space-y-4">
+        {food && <p className="text-sm text-slate-600">{t('Planned: {food}', { food: food.name })}</p>}
+        <button type="button" className="btn btn-primary w-full" onClick={() => onPickFood(item)}><Icon.search /> {t('Choose a food from the menu')}</button>
+        <div className="flex items-center gap-2 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" />{t('or')}<span className="h-px flex-1 bg-slate-200" /></div>
+        <form onSubmit={save} className="space-y-3">
+          <label className="block text-sm font-semibold">{t('Type what you had')}
+            <input className="input mt-1" value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder={t('e.g. Bread and tea at the office')} />
+          </label>
+          <label className="block text-sm font-semibold">{t('Calories, if you know them (optional)')}
+            <input className="input mt-1" type="number" inputMode="numeric" min={0} max={5000} value={kc} onChange={(e) => setKc(e.target.value)} placeholder="350" />
+          </label>
+          <button className="btn btn-ghost w-full" disabled={!note.trim()}><Icon.check /> {t('Save')}</button>
+        </form>
+      </div>
+    </Modal>
   )
 }

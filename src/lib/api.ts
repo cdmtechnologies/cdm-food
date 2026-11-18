@@ -3,13 +3,20 @@ import { callFunction, supabase } from './supabase'
 import COUNTRY_LIST from './countries.json'
 import type { Allergy, Diet, Food, Goal, Meal, PlanItem } from './planner'
 import type { Recipe } from './recipe'
+import type { Activity, Sex } from './body'
+import { currentLang } from '../i18n'
 
 export const FOOD_COLS = 'id, country_code, name, description, meals, serving, kcal, protein_g, carbs_g, fat_g, fibre_g, tags, ingredients, cost_level, prep_minutes, source, owner_id'
 
 export type ProfileRow = {
   id: string; display_name: string | null; country_code: string | null; household: number; diet: Diet; allergies: Allergy[]; goals: Goal[]
   daily_kcal: number | null; meals: Meal[]; notes: string | null; premium_until: string | null
+  sex: Sex | null; birth_year: number | null; height_cm: number | null; weight_kg: number | null; target_weight_kg: number | null
+  activity: Activity | null; units: 'metric' | 'imperial'; language: string
 }
+const PROFILE_COLS = 'id, display_name, country_code, household, diet, allergies, goals, daily_kcal, meals, notes, premium_until, sex, birth_year, height_cm, weight_kg, target_weight_kg, activity, units, language'
+const nn = (v: unknown) => (v == null ? null : Number(v))
+const profileRow = (d: Record<string, unknown>): ProfileRow => ({ ...(d as ProfileRow), height_cm: nn(d.height_cm), weight_kg: nn(d.weight_kg), target_weight_kg: nn(d.target_weight_kg) })
 export type Country = { code: string; name: string; region: string; currency?: string | null; menu_status?: string; menu_source?: string | null; foods?: number }
 export type Settings = { price_monthly_ngn: number; price_yearly_ngn: number; price_monthly_usd: number; price_yearly_usd: number; free_ai_daily: number; premium_ai_daily: number }
 
@@ -27,13 +34,13 @@ export const cachedAt = (k: string) => cacheGet(k)?.at ?? null
 export async function getProfile(): Promise<ProfileRow | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-  const { data, error } = await supabase.from('profiles').select('id, display_name, country_code, household, diet, allergies, goals, daily_kcal, meals, notes, premium_until').eq('id', user.id).maybeSingle()
+  const { data, error } = await supabase.from('profiles').select(PROFILE_COLS).eq('id', user.id).maybeSingle()
   fail(error)
-  if (data) return data as ProfileRow
+  if (data) return profileRow(data)
   // the account was made before the profile trigger existed
-  const ins = await supabase.from('profiles').insert({ id: user.id }).select('id, display_name, country_code, household, diet, allergies, goals, daily_kcal, meals, notes, premium_until').single()
+  const ins = await supabase.from('profiles').insert({ id: user.id, language: currentLang() }).select(PROFILE_COLS).single()
   fail(ins.error)
-  return ins.data as ProfileRow
+  return profileRow(ins.data)
 }
 export async function saveProfile(id: string, patch: Partial<Omit<ProfileRow, 'id' | 'premium_until'>>) {
   const { error } = await supabase.from('profiles').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id)
@@ -116,16 +123,17 @@ export const estimateFood = (name: string, country: string | null, details: stri
 
 // ---------- plan ----------
 export async function planRange(from: string, to: string): Promise<PlanItem[]> {
-  const { data, error } = await supabase.from('plan_items').select('id, day, meal, food_id, servings, position, locked').gte('day', from).lte('day', to).order('day').order('position')
+  const { data, error } = await supabase.from('plan_items').select('id, day, meal, food_id, servings, position, locked, status, ate_food_id, ate_servings, ate_note, ate_kcal')
+    .gte('day', from).lte('day', to).order('day').order('position')
   fail(error)
-  return (data ?? []).map((i) => ({ ...(i as PlanItem), servings: Number(i.servings) }))
+  return (data ?? []).map((i) => ({ ...(i as PlanItem), servings: Number(i.servings), ate_servings: nn(i.ate_servings) }))
 }
 export async function addPlanItems(items: PlanItem[]) {
   if (!items.length) return
   const { error } = await supabase.from('plan_items').insert(items.map(({ id: _id, ...rest }) => rest))
   fail(error)
 }
-export async function updatePlanItem(id: string, patch: Partial<Pick<PlanItem, 'servings' | 'locked' | 'food_id'>>) {
+export async function updatePlanItem(id: string, patch: Partial<Pick<PlanItem, 'servings' | 'locked' | 'food_id' | 'status' | 'ate_food_id' | 'ate_servings' | 'ate_note' | 'ate_kcal'>>) {
   const { error } = await supabase.from('plan_items').update(patch).eq('id', id)
   fail(error)
 }
@@ -134,7 +142,25 @@ export async function deletePlanItem(id: string) {
   fail(error)
 }
 export async function clearPlan(from: string, to: string) {
-  const { error } = await supabase.from('plan_items').delete().gte('day', from).lte('day', to).eq('locked', false)
+  const { error } = await supabase.from('plan_items').delete().gte('day', from).lte('day', to).eq('locked', false).eq('status', 'planned')
+  fail(error)
+}
+
+// ---------- weight log ----------
+export type Weigh = { day: string; kg: number }
+export async function weights(fromDay: string): Promise<Weigh[]> {
+  const { data, error } = await supabase.from('weights').select('day, kg').gte('day', fromDay).order('day')
+  fail(error)
+  return (data ?? []).map((w) => ({ day: w.day, kg: Number(w.kg) }))
+}
+export async function logWeight(day: string, kg: number) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Please sign in again.')
+  const { error } = await supabase.from('weights').upsert({ user_id: user.id, day, kg }, { onConflict: 'user_id,day' })
+  fail(error)
+}
+export async function deleteWeight(day: string) {
+  const { error } = await supabase.from('weights').delete().eq('day', day)
   fail(error)
 }
 
@@ -151,11 +177,11 @@ export const verifyPayment = (reference: string) =>
 // ---------- Ask AI ----------
 export type AiMsg = { role: 'user' | 'assistant'; content: string }
 export const askFood = (messages: AiMsg[], weekStart: string, today: string) =>
-  callFunction<{ reply: string; changed: boolean; recipe?: { food_id: string; name: string } | null; used_today: number; daily_limit: number; premium: boolean }>('food-ai', { messages, week_start: weekStart, today })
+  callFunction<{ reply: string; changed: boolean; recipe?: { food_id: string; name: string } | null; used_today: number; daily_limit: number; premium: boolean }>('food-ai', { messages, week_start: weekStart, today, lang: currentLang() })
 
 // ---------- recipes (Premium) ----------
 export const getRecipe = (foodId: string) =>
-  callFunction<{ recipe?: Recipe; video_search?: string; premium_needed?: boolean; error?: string }>('food-recipe', { food_id: foodId })
+  callFunction<{ recipe?: Recipe; video_search?: string; premium_needed?: boolean; error?: string }>('food-recipe', { food_id: foodId, lang: currentLang() })
 
 /** Opens the recipe window from anywhere in the app (planner, Explore, Ask AI). */
 export const openRecipe = (food: { id: string; name: string }) => window.dispatchEvent(new CustomEvent('cdmfood:recipe', { detail: food }))

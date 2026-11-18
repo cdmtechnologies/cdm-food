@@ -7,7 +7,11 @@
 // Deploy with "Verify JWT" ON.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { addDays, capJson, cleanFood, cleanHistory, dayRange, isDay } from './lib.ts'
-import { dailyTarget, fillWeek, GOALS, MEALS, totals, unsuitable, type Food, type Meal, type PlanItem, type Profile } from './planner.ts'
+import { dailyTarget, eatenTotals, fillWeek, GOALS, MEALS, totals, unsuitable, type Food, type Meal, type PlanItem, type Profile } from './planner.ts'
+import { age, bmi, bmiBand, bodyProblem, bodyTarget, healthyRange, weeksToTarget, type Body } from './body.ts'
+import { isLang, langLabel } from './languages.ts'
+
+const num = (v: unknown) => (v == null || v === '' ? null : Number(v))
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' }
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
@@ -20,11 +24,14 @@ You help the person plan meals they enjoy from their country's dishes, and chang
 
 How to work:
 - Be warm, brief and practical. Plain text only: no Markdown symbols such as #, ** or tables; short "- " lists are fine.
-- Reply in the language the person writes in.
+- Reply in the app language given below. If the person writes in a different language, reply in theirs.
 - To change the plan, use the tools: get_plan first, then search_foods, then set_meal, clear_meals or fill_days. Never claim you changed something unless a tool said it was saved. After changes, say briefly what you changed.
 - Pick foods that suit the person: search results say whether each one suits their diet and allergies; never plan an unsuitable one. Prefer their country's dishes unless they ask for others.
 - If they want a food that is not in the catalogue, use add_food with your best estimate of its nutrition for one typical serving, then plan it. Say the figures are estimates.
-- Only change their saved preferences (diet, allergies, health goals, calorie target, meals) when they ask you to, using update_preferences.
+- Only change their saved preferences (diet, allergies, health goals, calorie target, meals, height, weight, target weight, activity) when they ask you to, using update_preferences.
+- The person ticks meals as eaten, skipped, or "ate something else". When they tell you what they actually ate ("I had rice instead of the yam last night", "I skipped lunch"), record it with log_meal (use add_food first if the food is missing). When they tell you their weight today, use log_weight.
+- Ticked meals are history: never replace or clear them. Plan changes are for meals still to come.
+- For weight goals, use the body figures from get_profile; aim for steady change (about 0.25 to 0.5 kg a week), never below a healthy weight for their height.
 - Locked meals are ones the person chose to keep: do not change them unless they say so.
 - When they ask how to cook a dish, for a recipe or for cooking videos, find the food (search_foods, or add_food if it is missing) and call show_recipe. With Premium, the app then opens the full recipe, step-by-step cooking mode and short videos: just say it is open. Without Premium, give a short outline (main ingredients and 3 or 4 key steps) and say the full recipe with timed steps and videos comes with Premium.
 
@@ -34,7 +41,7 @@ Health and safety:
 - If someone seems to be struggling with eating (fear of food, bingeing, purging, extreme restriction), do not give calorie or weight numbers; respond kindly and encourage them to talk to a doctor or someone they trust.
 - Nutrition figures in CDM Food are approximate.`
 
-type Ctx = { db: ReturnType<typeof createClient>; uid: string; today: string; profile: Profile & { country_code: string | null; notes: string | null }; changed: boolean; premium: boolean; recipe: { food_id: string; name: string } | null }
+type Ctx = { db: ReturnType<typeof createClient>; uid: string; today: string; profile: Profile & Body & { country_code: string | null; notes: string | null; language: string }; changed: boolean; premium: boolean; recipe: { food_id: string; name: string } | null }
 
 async function myFoods(c: Ctx, ids: string[]): Promise<Map<string, Food>> {
   if (!ids.length) return new Map()
@@ -43,7 +50,7 @@ async function myFoods(c: Ctx, ids: string[]): Promise<Map<string, Food>> {
 }
 
 async function planFor(c: Ctx, days: string[]) {
-  const { data, error } = await c.db.from('plan_items').select('id, day, meal, food_id, servings, position, locked')
+  const { data, error } = await c.db.from('plan_items').select('id, day, meal, food_id, servings, position, locked, status, ate_food_id, ate_servings, ate_note, ate_kcal')
     .gte('day', days[0]).lte('day', days[days.length - 1]).order('day').order('position')
   if (error) throw new Error(error.message)
   return (data ?? []) as PlanItem[]
@@ -54,7 +61,12 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
     def: { name: 'get_profile', description: "The person's country, diet, allergies, health goals, daily calorie target, chosen meals, household size and notes.", input_schema: { type: 'object', properties: {} } },
     async run(c) {
       const p = c.profile
-      return { country: p.country_code, diet: p.diet, allergies: p.allergies, goals: p.goals, daily_kcal_target: dailyTarget(p), own_target_set: !!p.daily_kcal, meals: p.meals, household: p.household, notes: p.notes }
+      const bt = bodyTarget(p)
+      const b = bmi(p.height_cm, p.weight_kg)
+      return {
+        country: p.country_code, diet: p.diet, allergies: p.allergies, goals: p.goals, daily_kcal_target: dailyTarget(p), own_target_set: !!p.daily_kcal, meals: p.meals, household: p.household, notes: p.notes,
+        body: { sex: p.sex, age: age(p.birth_year), height_cm: p.height_cm, weight_kg: p.weight_kg, target_weight_kg: p.target_weight_kg, activity: p.activity, bmi: b, bmi_band: b ? bmiBand(b) : null, healthy_weight_range_kg: healthyRange(p.height_cm), maintenance_kcal: bt?.maintenance ?? null, plan: bt ? { direction: bt.direction, kg_per_week: bt.kgPerWeek, weeks_to_target: weeksToTarget(p, bt), note: bt.note || undefined } : 'Body measurements not complete' },
+      }
     },
   },
   {
@@ -65,15 +77,15 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
     async run(c, i) {
       const days = dayRange(i.from, i.to, c.today)
       const items = await planFor(c, days)
-      const foods = await myFoods(c, items.map((x) => x.food_id))
+      const foods = await myFoods(c, items.flatMap((x) => (x.ate_food_id ? [x.food_id, x.ate_food_id] : [x.food_id])))
       return {
         daily_target: dailyTarget(c.profile),
         days: days.map((d) => {
           const di = items.filter((x) => x.day === d)
           return {
-            day: d, total: totals(di, foods),
+            day: d, total_planned: totals(di, foods), eaten_so_far: d <= c.today ? eatenTotals(di, foods) : undefined,
             meals: MEALS.filter((m) => di.some((x) => x.meal === m)).map((m) => ({
-              meal: m, items: di.filter((x) => x.meal === m).map((x) => ({ food_id: x.food_id, food: foods.get(x.food_id)?.name, servings: x.servings, kcal: Math.round((foods.get(x.food_id)?.kcal ?? 0) * x.servings), locked: x.locked })),
+              meal: m, items: di.filter((x) => x.meal === m).map((x) => ({ food_id: x.food_id, food: foods.get(x.food_id)?.name, servings: x.servings, kcal: Math.round((foods.get(x.food_id)?.kcal ?? 0) * x.servings), locked: x.locked, status: x.status, ate_instead: x.status === 'swapped' ? (x.ate_food_id ? foods.get(x.ate_food_id)?.name ?? 'another food' : x.ate_note) : undefined })),
             })),
           }
         }),
@@ -140,8 +152,9 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
         const why = unsuitable(f, c.profile)
         if (why) return { saved: false, error: `${f.name}: ${why}. Pick another food.` }
       }
-      const { data: locked } = await c.db.from('plan_items').select('id').eq('day', i.day).eq('meal', i.meal).eq('locked', true).limit(1)
-      if (locked?.length) return { saved: false, error: 'That meal is locked. Ask the person if they want to unlock it first.' }
+      const { data: locked } = await c.db.from('plan_items').select('id, locked, status').eq('day', i.day).eq('meal', i.meal)
+      if (locked?.some((x) => x.status && x.status !== 'planned')) return { saved: false, error: 'That meal is already ticked as eaten, skipped or swapped. Use log_meal to change what was eaten.' }
+      if (locked?.some((x) => x.locked)) return { saved: false, error: 'That meal is locked. Ask the person if they want to unlock it first.' }
       const del = await c.db.from('plan_items').delete().eq('day', i.day).eq('meal', i.meal)
       if (del.error) throw new Error(del.error.message)
       const rows = want.map((w, n) => ({ user_id: c.uid, day: i.day, meal: i.meal, food_id: String(w.food_id), servings: Math.min(4, Math.max(0.25, Number(w.servings) || 1)), position: n }))
@@ -153,12 +166,12 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
   },
   {
     def: {
-      name: 'clear_meals', description: 'Remove the unlocked foods between two dates (at most 14 days), for all meals or only the listed meals.',
+      name: 'clear_meals', description: 'Remove the unlocked, not yet ticked foods between two dates (at most 14 days), for all meals or only the listed meals.',
       input_schema: { type: 'object', required: ['from', 'to'], properties: { from: { type: 'string' }, to: { type: 'string' }, meals: { type: 'array', items: { type: 'string', enum: MEALS } } } },
     },
     async run(c, i) {
       const days = dayRange(i.from, i.to, c.today)
-      let q = c.db.from('plan_items').delete().gte('day', days[0]).lte('day', days[days.length - 1]).eq('locked', false)
+      let q = c.db.from('plan_items').delete().gte('day', days[0]).lte('day', days[days.length - 1]).eq('locked', false).eq('status', 'planned')
       const meals = (Array.isArray(i.meals) ? i.meals : []).filter((m) => (MEALS as string[]).includes(String(m)))
       if (meals.length) q = q.in('meal', meals)
       const { error } = await q
@@ -224,6 +237,69 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
   },
   {
     def: {
+      name: 'log_meal', description: 'Record what really happened at one meal: eaten as planned, skipped, swapped (ate something else), or planned (undo). For swapped give ate_food_id (from search_foods or add_food) or a short ate_note with an ate_kcal estimate.',
+      input_schema: {
+        type: 'object', required: ['day', 'meal', 'status'], properties: {
+          day: { type: 'string' }, meal: { type: 'string', enum: MEALS }, status: { type: 'string', enum: ['eaten', 'skipped', 'swapped', 'planned'] },
+          food_id: { type: 'string', description: 'Only this planned food in the meal (optional; default all foods in the meal)' },
+          ate_food_id: { type: 'string' }, ate_servings: { type: 'number', minimum: 0.25, maximum: 4 }, ate_note: { type: 'string' }, ate_kcal: { type: 'integer', minimum: 0, maximum: 3000 },
+        },
+      },
+    },
+    async run(c, i) {
+      if (!isDay(i.day) || !(MEALS as string[]).includes(String(i.meal))) return { saved: false, error: 'Give a date (YYYY-MM-DD) and a meal.' }
+      if (String(i.day) > addDays(c.today, 1)) return { saved: false, error: 'Meals can only be ticked for today or earlier.' }
+      const status = String(i.status)
+      if (!['eaten', 'skipped', 'swapped', 'planned'].includes(status)) return { saved: false, error: 'Unknown status.' }
+      let q = c.db.from('plan_items').select('id, food_id').eq('day', i.day).eq('meal', i.meal)
+      if (i.food_id) q = q.eq('food_id', String(i.food_id))
+      const { data: rows } = await q
+      const patch: Record<string, unknown> = { status, ate_food_id: null, ate_servings: null, ate_note: null, ate_kcal: null }
+      if (status === 'swapped') {
+        if (i.ate_food_id) {
+          const f = (await myFoods(c, [String(i.ate_food_id)])).get(String(i.ate_food_id))
+          if (!f) return { saved: false, error: 'That food was not found. Use search_foods or add_food first.' }
+          patch.ate_food_id = f.id; patch.ate_servings = Math.min(4, Math.max(0.25, Number(i.ate_servings) || 1))
+        } else if (typeof i.ate_note === 'string' && i.ate_note.trim()) {
+          patch.ate_note = i.ate_note.trim().slice(0, 200)
+          if (Number.isFinite(Number(i.ate_kcal))) patch.ate_kcal = Math.min(3000, Math.max(0, Math.round(Number(i.ate_kcal))))
+        } else return { saved: false, error: 'Say what was eaten instead (ate_food_id or ate_note).' }
+      }
+      if (!rows?.length) {
+        if (status !== 'swapped' || !patch.ate_food_id) return { saved: false, error: 'Nothing is planned for that meal. To record food eaten there, use swapped with ate_food_id.' }
+        // nothing was planned: record the food they ate as an eaten meal
+        const ins = await c.db.from('plan_items').insert({ user_id: c.uid, day: i.day, meal: i.meal, food_id: patch.ate_food_id, servings: patch.ate_servings, position: 0, status: 'eaten' })
+        if (ins.error) return { saved: false, error: ins.error.message }
+      } else {
+        // when swapped, the other food replaces the whole meal: the first item carries it, the rest count as skipped
+        for (const [n, r] of rows.entries()) {
+          const p = status === 'swapped' && n > 0 ? { status: 'skipped', ate_food_id: null, ate_servings: null, ate_note: null, ate_kcal: null } : patch
+          const { error } = await c.db.from('plan_items').update(p).eq('id', r.id)
+          if (error) return { saved: false, error: error.message }
+        }
+      }
+      c.changed = true
+      return { saved: true }
+    },
+  },
+  {
+    def: {
+      name: 'log_weight', description: "Record the person's weight in kg for a day (default today).",
+      input_schema: { type: 'object', required: ['kg'], properties: { kg: { type: 'number', minimum: 25, maximum: 350 }, day: { type: 'string' } } },
+    },
+    async run(c, i) {
+      const kg = Math.round(Number(i.kg) * 10) / 10
+      if (!(kg >= 25 && kg <= 350)) return { saved: false, error: 'Weight should be between 25 and 350 kg.' }
+      const day = isDay(i.day) && String(i.day) <= c.today ? String(i.day) : c.today
+      const { error } = await c.db.from('weights').upsert({ user_id: c.uid, day, kg }, { onConflict: 'user_id,day' })
+      if (error) return { saved: false, error: error.message }
+      c.profile.weight_kg = kg
+      c.changed = true
+      return { saved: true, day, kg, bmi: bmi(c.profile.height_cm, kg) }
+    },
+  },
+  {
+    def: {
       name: 'update_preferences', description: "Change the person's saved preferences, only when they ask.",
       input_schema: {
         type: 'object', properties: {
@@ -233,6 +309,8 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
           daily_kcal: { type: 'integer', minimum: 1200, maximum: 5000 },
           meals: { type: 'array', items: { type: 'string', enum: MEALS } },
           notes: { type: 'string', description: 'Likes and dislikes to remember, short' },
+          sex: { type: 'string', enum: ['female', 'male'] }, birth_year: { type: 'integer' }, height_cm: { type: 'number' },
+          target_weight_kg: { type: 'number' }, activity: { type: 'string', enum: ['sedentary', 'light', 'moderate', 'active', 'very_active'] },
         },
       },
     },
@@ -241,6 +319,10 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
       for (const k of ['diet', 'allergies', 'goals', 'meals'] as const) if (i[k] !== undefined) patch[k] = i[k]
       if (Number(i.daily_kcal) >= 1200) patch.daily_kcal = Math.min(5000, Math.round(Number(i.daily_kcal)))
       if (typeof i.notes === 'string') patch.notes = i.notes.slice(0, 500)
+      for (const k of ['sex', 'activity'] as const) if (typeof i[k] === 'string') patch[k] = i[k]
+      for (const k of ['birth_year', 'height_cm', 'target_weight_kg'] as const) if (Number.isFinite(Number(i[k])) && i[k] !== undefined) patch[k] = Number(i[k])
+      const problem = bodyProblem({ ...c.profile, ...patch } as Partial<Body>)
+      if (problem) return { saved: false, error: problem }
       const { error } = await c.db.from('profiles').update(patch).eq('id', c.uid)
       if (error) return { saved: false, error: error.message }
       Object.assign(c.profile, patch)
@@ -271,14 +353,16 @@ Deno.serve(async (req) => {
       return json({ limited: true, premium: !!g?.premium, error: g?.premium ? `You have used today's ${g.daily_limit} questions. Ask AI resets tomorrow.` : `You have used today's ${g?.daily_limit ?? 3} free questions. Go Premium for more, or come back tomorrow.` })
     }
 
-    const { data: prof } = await db.from('profiles').select('country_code, diet, allergies, goals, daily_kcal, meals, household, notes').eq('id', user.id).maybeSingle()
+    const { data: prof } = await db.from('profiles').select('country_code, diet, allergies, goals, daily_kcal, meals, household, notes, sex, birth_year, height_cm, weight_kg, target_weight_kg, activity, language').eq('id', user.id).maybeSingle()
     const today = isDay(body.today) ? body.today : new Date().toISOString().slice(0, 10)
     const ctx: Ctx = {
       db, uid: user.id, today, changed: false, premium: !!g.premium, recipe: null,
-      profile: { country_code: prof?.country_code ?? null, diet: prof?.diet ?? 'none', allergies: prof?.allergies ?? [], goals: prof?.goals ?? [], daily_kcal: prof?.daily_kcal ?? null, meals: (prof?.meals ?? ['breakfast', 'lunch', 'dinner']) as Meal[], household: prof?.household ?? 1, notes: prof?.notes ?? null },
+      profile: { country_code: prof?.country_code ?? null, diet: prof?.diet ?? 'none', allergies: prof?.allergies ?? [], goals: prof?.goals ?? [], daily_kcal: prof?.daily_kcal ?? null, meals: (prof?.meals ?? ['breakfast', 'lunch', 'dinner']) as Meal[], household: prof?.household ?? 1, notes: prof?.notes ?? null,
+        sex: prof?.sex ?? null, birth_year: prof?.birth_year ?? null, height_cm: num(prof?.height_cm), weight_kg: num(prof?.weight_kg), target_weight_kg: num(prof?.target_weight_kg), activity: prof?.activity ?? null,
+        language: isLang(body.lang) ? body.lang : isLang(prof?.language) ? prof!.language : 'en' },
     }
     const week = isDay(body.week_start) ? body.week_start : today
-    const about = `About this conversation:\n- Today: ${today}\n- Week on screen: ${week} to ${addDays(week, 6)}\n- Country: ${ctx.profile.country_code ?? 'not chosen'}\n- Diet: ${ctx.profile.diet}; allergies: ${ctx.profile.allergies.join(', ') || 'none'}; goals: ${ctx.profile.goals.join(', ') || 'none'}; target ${dailyTarget(ctx.profile)} kcal a day`
+    const about = `About this conversation:\n- Today: ${today}\n- Week on screen: ${week} to ${addDays(week, 6)}\n- Country: ${ctx.profile.country_code ?? 'not chosen'}\n- Diet: ${ctx.profile.diet}; allergies: ${ctx.profile.allergies.join(', ') || 'none'}; goals: ${ctx.profile.goals.join(', ') || 'none'}; target ${dailyTarget(ctx.profile)} kcal a day\n- App language: ${langLabel(ctx.profile.language)}${ctx.profile.weight_kg ? `\n- Weight ${ctx.profile.weight_kg} kg${ctx.profile.target_weight_kg ? `, target ${ctx.profile.target_weight_kg} kg` : ''}` : ''}`
 
     // deno-lint-ignore no-explicit-any
     const messages: any[] = history.map((m) => ({ role: m.role, content: m.content }))

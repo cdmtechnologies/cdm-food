@@ -8,6 +8,7 @@
 // Secrets: ANTHROPIC_API_KEY. Optional: FOOD_AI_MODEL, YOUTUBE_API_KEY. Deploy with "Verify JWT" ON.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { cleanRecipe, cleanVideos, parseYouTube, videoQuery, type Video } from './recipe.ts'
+import { isLang, langLabel } from './languages.ts'
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' }
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
@@ -42,7 +43,7 @@ const RECIPE_TOOL = {
   },
 }
 
-async function makeRecipe(food: Record<string, unknown>, countryName: string) {
+async function makeRecipe(food: Record<string, unknown>, countryName: string, lang: string) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
@@ -50,7 +51,7 @@ async function makeRecipe(food: Record<string, unknown>, countryName: string) {
       model: MODEL, max_tokens: 2500,
       system: 'You are an experienced home cook and food-safety-aware recipe writer. Write the way the dish is really made at home in its country, with ingredients people can buy there. Use metric amounts (g, ml) or spoons and cups. Steps are numbered actions a beginner can follow, with times. Cook meat, poultry, fish and eggs through, and mention it where it matters. Never add ingredients the food\'s tags say it does not contain if they are allergens (nuts, dairy, gluten, egg, fish, shellfish, soy, sesame, pork, alcohol).',
       tools: [RECIPE_TOOL], tool_choice: { type: 'tool', name: 'save_recipe' },
-      messages: [{ role: 'user', content: `Dish: ${food.name}\nCountry: ${countryName || 'not given'}\nDescription: ${food.description ?? ''}\nServing: ${food.serving ?? ''}\nMain ingredients: ${(food.ingredients as string[] ?? []).join(', ')}\nTags: ${(food.tags as string[] ?? []).join(', ')}\nWrite a recipe for 4 people.` }],
+      messages: [{ role: 'user', content: `Dish: ${food.name}\nCountry: ${countryName || 'not given'}\nDescription: ${food.description ?? ''}\nServing: ${food.serving ?? ''}\nMain ingredients: ${(food.ingredients as string[] ?? []).join(', ')}\nTags: ${(food.tags as string[] ?? []).join(', ')}\nWrite a recipe for 4 people.${lang === 'en' ? '' : `\nWrite every ingredient, step and tip in ${langLabel(lang)}. Keep the dish name as people know it. Units stay as listed (g, ml, tsp, cup…).`}` }],
     }),
   })
   const j = await r.json()
@@ -84,7 +85,7 @@ Deno.serve(async (req) => {
     const foodId = String(body.food_id ?? '')
     if (!UUID.test(foodId)) return json({ error: 'Pick a food first.' }, 400)
 
-    const { data: prof } = await admin.from('profiles').select('premium_until').eq('id', user.id).maybeSingle()
+    const { data: prof } = await admin.from('profiles').select('premium_until, language').eq('id', user.id).maybeSingle()
     if (!(prof?.premium_until && new Date(prof.premium_until) > new Date())) return json({ premium_needed: true, error: 'Recipes, cooking steps and videos are part of Premium.' })
 
     // read with the person's login: catalogue foods and their own foods only
@@ -92,15 +93,16 @@ Deno.serve(async (req) => {
     if (!food) return json({ error: 'That food was not found.' }, 404)
     const { data: country } = food.country_code ? await admin.from('countries').select('name').eq('code', food.country_code).maybeSingle() : { data: null }
 
-    let { data: row } = await admin.from('recipes').select('*').eq('food_id', foodId).maybeSingle()
+    const lang = isLang(body.lang) ? body.lang : isLang(prof?.language) ? prof!.language : 'en'
+    let { data: row } = await admin.from('recipes').select('*').eq('food_id', foodId).eq('lang', lang).maybeSingle()
     if (!row) {
       if (!KEY) return json({ error: 'Recipes are not set up yet.' })
       const { data: gate } = await admin.rpc('recipe_take', { p_user: user.id })
       if (!gate?.[0]?.allowed) return json({ error: "You have opened a lot of new recipes today. Recipes you have already opened still work; new ones are back tomorrow." })
-      const recipe = await makeRecipe(food, country?.name ?? '')
+      const recipe = await makeRecipe(food, country?.name ?? '', lang)
       if (!recipe) return json({ error: 'The recipe did not come out right. Please try again.' })
-      const ins = await admin.from('recipes').upsert({ food_id: foodId, ...recipe, source: 'ai' }, { onConflict: 'food_id', ignoreDuplicates: true }).select('*').maybeSingle()
-      row = ins.data ?? (await admin.from('recipes').select('*').eq('food_id', foodId).maybeSingle()).data
+      const ins = await admin.from('recipes').upsert({ food_id: foodId, lang, ...recipe, source: 'ai' }, { onConflict: 'food_id,lang', ignoreDuplicates: true }).select('*').maybeSingle()
+      row = ins.data ?? (await admin.from('recipes').select('*').eq('food_id', foodId).eq('lang', lang).maybeSingle()).data
       if (!row) throw new Error(ins.error?.message ?? 'recipe not saved')
     }
 
@@ -109,7 +111,7 @@ Deno.serve(async (req) => {
     if (YT && stale) {
       const found = await findVideos(videoQuery(food.name, country?.name))
       if (found.length || !videos.length) videos = found
-      await admin.from('recipes').update({ videos, videos_at: new Date().toISOString() }).eq('food_id', foodId)
+      await admin.from('recipes').update({ videos, videos_at: new Date().toISOString() }).eq('food_id', foodId).eq('lang', lang)
     }
 
     return json({
