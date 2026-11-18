@@ -57,7 +57,7 @@ ALTER TABLE public.plan_items
   ADD COLUMN ate_note text CHECK (length(ate_note) <= 200),
   ADD COLUMN ate_kcal integer CHECK (ate_kcal BETWEEN 0 AND 5000),
   ADD COLUMN status_at timestamptz,
-  ADD CONSTRAINT plan_items_swap_has_detail CHECK (status <> 'swapped' OR ate_food_id IS NOT NULL OR length(trim(ate_note)) > 0);
+  ADD CONSTRAINT plan_items_swap_has_detail CHECK (status <> 'swapped' OR ate_food_id IS NOT NULL OR coalesce(length(trim(ate_note)), 0) > 0);
 CREATE INDEX plan_items_ate_food ON public.plan_items (ate_food_id) WHERE ate_food_id IS NOT NULL;
 
 CREATE OR REPLACE FUNCTION public.plan_items_check() RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
