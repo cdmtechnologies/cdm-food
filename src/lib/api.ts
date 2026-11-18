@@ -172,13 +172,26 @@ export async function deleteWeight(day: string) {
   fail(error)
 }
 
+// ---------- referrals (CDM Partners sales staff share links like https://cdm-food.netlify.app/?ref=FOOD-AB12CD) ----------
+const REF_KEY = 'cdmfood-ref'
+/** Keeps a ?ref= code from the link for 60 days, so the partner who brought the person is credited when they pay. */
+export function rememberReferral() {
+  try {
+    const code = new URLSearchParams(location.search).get('ref')?.trim().toUpperCase()
+    if (code && /^[A-Z0-9-]{3,24}$/.test(code)) localStorage.setItem(REF_KEY, JSON.stringify({ code, at: Date.now() }))
+  } catch { /* storage blocked */ }
+}
+export function referralCode(): string | null {
+  try { const r = JSON.parse(localStorage.getItem(REF_KEY) ?? 'null'); return r && Date.now() - r.at < 60 * 864e5 ? r.code : null } catch { return null }
+}
+
 // ---------- premium ----------
 export async function getSettings(): Promise<Settings | null> {
   const { data } = await supabase.from('settings').select('price_monthly_ngn, price_yearly_ngn, price_monthly_usd, price_yearly_usd, free_ai_daily, premium_ai_daily').maybeSingle()
   return (data as Settings) ?? null
 }
 export const startPayment = (period: 'monthly' | 'yearly', currency: 'NGN' | 'USD') =>
-  callFunction<{ url: string; reference: string }>('food-pay', { action: 'start', period, currency, return_url: `${location.origin}/pay-return` })
+  callFunction<{ url: string; reference: string }>('food-pay', { action: 'start', period, currency, return_url: `${location.origin}/pay-return`, referral_code: referralCode() })
 export const verifyPayment = (reference: string) =>
   callFunction<{ paid: boolean; premium_until?: string; status?: string }>('food-pay', { action: 'verify', reference })
 

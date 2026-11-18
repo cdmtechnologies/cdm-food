@@ -70,6 +70,9 @@ Deno.serve(async (req) => {
       const amount = Number(currency === 'USD' ? (period === 'yearly' ? s.price_yearly_usd : s.price_monthly_usd) : (period === 'yearly' ? s.price_yearly_ngn : s.price_monthly_ngn))
       const ret = typeof body.return_url === 'string' && ALLOWED_RETURN.test(body.return_url) ? body.return_url : undefined
       const reference = `cdmfood_${crypto.randomUUID().replace(/-/g, '')}`
+      const referral = typeof body.referral_code === 'string' && /^[A-Z0-9-]{3,24}$/.test(body.referral_code.toUpperCase()) ? body.referral_code.toUpperCase() : null
+      const { data: prof } = await admin.from('profiles').select('display_name').eq('id', user.id).maybeSingle()
+      const clientName = (prof?.display_name || String(user.email ?? '').split('@')[0]).slice(0, 80)
       const { error: e1 } = await admin.from('payments').insert({ reference, user_id: user.id, period, amount, currency })
       if (e1) throw new Error(e1.message)
       const r = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -77,7 +80,8 @@ Deno.serve(async (req) => {
         headers: { Authorization: `Bearer ${PSK}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: user.email, amount: Math.round(amount * 100), currency, reference, callback_url: ret,
-          metadata: { product: 'cdmfood', user_id: user.id, period, cancel_action: ret },
+          // referral_code and client_name are for CDM Partners (sales commission and the Control Centre)
+          metadata: { product: 'cdmfood', user_id: user.id, period, cancel_action: ret, client_name: clientName, ...(referral ? { referral_code: referral } : {}) },
         }),
       })
       const j = await r.json().catch(() => ({}))

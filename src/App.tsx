@@ -13,16 +13,17 @@ import Explore from './pages/Explore'
 import Landing from './pages/Landing'
 import MyFoods from './pages/MyFoods'
 import Progress from './pages/Progress'
+import Owner from './pages/Owner'
 import Planner from './pages/Planner'
 import Shopping from './pages/Shopping'
 import { currentLang, initialLang, setLanguage, t, useLanguage } from './i18n'
 
-type Tab = 'plan' | 'explore' | 'mine' | 'shop' | 'progress' | 'account'
+type Tab = 'plan' | 'explore' | 'mine' | 'shop' | 'progress' | 'account' | 'owner'
 const TABS: { id: Tab; label: string; icon: keyof typeof Icon }[] = [
   { id: 'plan', label: /*i18n*/ 'My plan', icon: 'plan' }, { id: 'explore', label: /*i18n*/ 'Explore', icon: 'explore' }, { id: 'mine', label: /*i18n*/ 'My foods', icon: 'mine' },
   { id: 'shop', label: /*i18n*/ 'Shopping', icon: 'cart' }, { id: 'progress', label: /*i18n*/ 'Progress', icon: 'chart' }, { id: 'account', label: /*i18n*/ 'Account', icon: 'user' },
 ]
-const tabFromHash = (): Tab => { const tb = location.hash.replace(/^#\/?/, '').split('?')[0] as Tab; return TABS.some((x) => x.id === tb) ? tb : 'plan' }
+const tabFromHash = (): Tab => { const tb = location.hash.replace(/^#\/?/, '').split('?')[0] as Tab; return TABS.some((x) => x.id === tb) || tb === 'owner' ? tb : 'plan' }
 
 export default function App() {
   useLanguage()
@@ -118,6 +119,7 @@ export default function App() {
         {tab === 'mine' && <MyFoods profile={profile} />}
         {tab === 'shop' && <Shopping profile={profile} premium={premium} start={start} onUpgrade={upgrade} />}
         {tab === 'progress' && <Progress profile={profile} onSaved={(p) => { setProfile(p); setReloadKey((k) => k + 1) }} />}
+        {tab === 'owner' && <Owner />}
         {tab === 'account' && <Account profile={profile} email={session.user.email ?? ''} payNote={payNote} onSaved={(p) => { setProfile(p); setReloadKey((k) => k + 1) }} />}
       </main>
 

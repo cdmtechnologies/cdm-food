@@ -35,3 +35,10 @@ React + TypeScript + Tailwind (Vite), Supabase (Postgres with row-level security
 - Body details (sex, year of birth, height, weight, target weight, activity; kg/cm or lb/ft) give BMI, a healthy-weight range and a daily calorie target (Mifflin-St Jeor; at most 500 kcal under maintenance, never below 1,200/1,500, no cuts for under-18s or targets below a healthy weight).
 - Weigh-ins are kept in `weights`; the newest becomes the profile's weight.
 - Each meal can be ticked as eaten, skipped or "had something else" (another food, or a note with calories). Ticked meals stay when a week is filled or cleared, and the day shows what was really eaten.
+
+## Owner dashboard
+- `/#/owner` (link on the Account page for staff). Only emails in the `staff` table, after two-step sign-in (authenticator app; on by default, switch in Settings).
+- Overview (sign-ups, Premium, money in ₦ and $, AI cost estimate), customers (add or end Premium with a reason), payments, AI & costs (emergency pause for all AI), content (add popular user foods to the catalogue), prices and limits, audit log.
+- The `cdm-control` function also answers CDM Partners' Control Centre (header `x-cdm-control-key` = `CDM_CONTROL_KEY`, same value as the other apps): overview, search, detail, extend, pause.
+- Sign-ups to CDM Partners: Supabase > Database > Webhooks > table `profiles`, Insert, POST to
+  `https://<partners-project>.supabase.co/functions/v1/product-signups?product=cdmfood` with header `x-cdm-signup-key`.

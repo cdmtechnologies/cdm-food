@@ -158,7 +158,7 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
                 <section key={meal} className="card p-4" aria-label={t(MEAL_LABEL[meal])}>
                   <div className="mb-2 flex items-center justify-between">
                     <h3 className="font-bold">{MEAL_ICON[meal]} {t(MEAL_LABEL[meal])}</h3>
-                    <span className="text-sm text-slate-500">{mk ? kcal(mk) : ''}{mealT[meal] ? ` · ${t('aim {n}', { n: mealT[meal] })}` : ''}</span>
+                    <span className="text-sm text-slate-500">{[mk ? kcal(mk) : '', mealT[meal] ? t('aim {n}', { n: mealT[meal] }) : ''].filter(Boolean).join(' · ')}</span>
                   </div>
                   {list.length === 0 && <p className="mb-2 text-sm text-slate-500">{t("Nothing planned.")}</p>}
                   <ul className="space-y-2">

@@ -4,6 +4,7 @@ import { Alert, Icon } from '../components/ui'
 import { getSettings, isPremium, startPayment, type ProfileRow, type Settings } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { t } from '../i18n'
+import { owner } from '../lib/owner'
 
 const naira = (n: number) => '₦' + Math.round(n).toLocaleString('en-NG')
 const usd = (n: number) => '$' + Number(n).toFixed(2).replace(/\.00$/, '')
@@ -15,6 +16,9 @@ export default function Account({ profile, onSaved, email, payNote }: { profile:
   const [currency, setCurrency] = useState<'NGN' | 'USD'>(profile.country_code === 'NG' ? 'NGN' : 'USD')
   const premium = isPremium(profile)
   useEffect(() => { getSettings().then(setS) }, [])
+  // the owner sees a link to the dashboard (the server decides who that is)
+  const [isOwner, setIsOwner] = useState(false)
+  useEffect(() => { owner('whoami').then(() => setIsOwner(true), () => setIsOwner(false)) }, [])
 
   async function pay(period: 'monthly' | 'yearly') {
     setBusy(period); setErr('')
@@ -23,6 +27,7 @@ export default function Account({ profile, onSaved, email, payNote }: { profile:
 
   return (
     <div className="space-y-6">
+      {isOwner && <a href="#/owner" className="card flex items-center gap-3 border-brand-200 bg-brand-50 p-4 font-semibold text-brand-800"><Icon.chart /> Owner dashboard <Icon.right className="ml-auto" /></a>}
       <section id="premium" className="card overflow-hidden">
         <div className="bg-gradient-to-r from-brand-700 to-brand-600 p-5 text-white">
           <div className="flex items-center gap-2 text-lg font-bold"><Icon.star /> {t("CDM Food Premium")}</div>
