@@ -153,8 +153,8 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
         if (why) return { saved: false, error: `${f.name}: ${why}. Pick another food.` }
       }
       const { data: locked } = await c.db.from('plan_items').select('id, locked, status').eq('day', i.day).eq('meal', i.meal)
-      if (locked?.some((x) => x.status && x.status !== 'planned')) return { saved: false, error: 'That meal is already ticked as eaten, skipped or swapped. Use log_meal to change what was eaten.' }
-      if (locked?.some((x) => x.locked)) return { saved: false, error: 'That meal is locked. Ask the person if they want to unlock it first.' }
+      if (locked?.some((x: { status?: string; locked?: boolean }) => x.status && x.status !== 'planned')) return { saved: false, error: 'That meal is already ticked as eaten, skipped or swapped. Use log_meal to change what was eaten.' }
+      if (locked?.some((x: { status?: string; locked?: boolean }) => x.locked)) return { saved: false, error: 'That meal is locked. Ask the person if they want to unlock it first.' }
       const del = await c.db.from('plan_items').delete().eq('day', i.day).eq('meal', i.meal)
       if (del.error) throw new Error(del.error.message)
       const rows = want.map((w, n) => ({ user_id: c.uid, day: i.day, meal: i.meal, food_id: String(w.food_id), servings: Math.min(4, Math.max(0.25, Number(w.servings) || 1)), position: n }))

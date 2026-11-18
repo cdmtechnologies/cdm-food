@@ -45,11 +45,11 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
   const mark = (it: PlanItem, status: MealStatus) => run('mark', () => updatePlanItem(it.id!, { status, ate_food_id: null, ate_servings: null, ate_note: null, ate_kcal: null }))
 
   const fill = () => run('fill', async () => {
-    if (!profile.country_code) throw new Error('Choose your country in Account first.')
+    if (!profile.country_code) throw new Error(t("Choose your country in Account first."))
     const [country, mine] = await Promise.all([countryFoods(profile.country_code), myFoods()])
-    if (!country.length && !mine.length) throw new Error('Your country\'s menu is not ready yet. Open Explore to load it.')
+    if (!country.length && !mine.length) throw new Error(t("Your country's menu is not ready yet. Open Explore to load it."))
     const add = fillWeek(days, profile.meals, [...country, ...mine], profile, items ?? [], Date.now() % 100000)
-    if (!add.length) throw new Error('Every meal this week is already planned. Clear the week first to start again.')
+    if (!add.length) throw new Error(t("Every meal this week is already planned. Clear the week first to start again."))
     await addPlanItems(add)
   })
   const clear = () => { if (window.confirm(t('Remove every meal this week, except the ones you locked or ticked?'))) run('clear', () => clearPlan(days[0], days[6])) }
@@ -82,24 +82,24 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
-          <button type="button" className="btn btn-ghost px-2.5" aria-label="Previous week" onClick={() => setStart(new Date(start.getFullYear(), start.getMonth(), start.getDate() - 7))}><Icon.left /></button>
+          <button type="button" className="btn btn-ghost px-2.5" aria-label={t("Previous week")} onClick={() => setStart(new Date(start.getFullYear(), start.getMonth(), start.getDate() - 7))}><Icon.left /></button>
           <div className="min-w-[11rem] text-center">
-            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{days.includes(todayIso) ? 'This week' : 'Week of'}</div>
+            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{days.includes(todayIso) ? t("This week") : t("Week of")}</div>
             <div className="font-bold">{dayLabel(days[0])} – {dayLabel(days[6])}</div>
           </div>
-          <button type="button" className="btn btn-ghost px-2.5" aria-label="Next week" onClick={() => setStart(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7))}><Icon.right /></button>
-          {!days.includes(todayIso) && <button type="button" className="ml-1 text-sm font-semibold text-brand-700 underline" onClick={() => setStart(weekStart(new Date()))}>Today</button>}
+          <button type="button" className="btn btn-ghost px-2.5" aria-label={t("Next week")} onClick={() => setStart(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7))}><Icon.right /></button>
+          {!days.includes(todayIso) && <button type="button" className="ml-1 text-sm font-semibold text-brand-700 underline" onClick={() => setStart(weekStart(new Date()))}>{t("Today")}</button>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn btn-primary" onClick={fill} disabled={!!busy}><Icon.sparkle /> {busy === 'fill' ? 'Filling…' : 'Fill my week'}</button>
-          <button type="button" className="btn btn-ghost" onClick={() => onAskAi()}>🤖 Ask AI to change it</button>
-          <button type="button" className="btn btn-ghost" onClick={clear} disabled={!!busy || weekEmpty}><Icon.trash /> Clear week</button>
+          <button type="button" className="btn btn-primary" onClick={fill} disabled={!!busy}><Icon.sparkle /> {busy === 'fill' ? t("Filling…") : t("Fill my week")}</button>
+          <button type="button" className="btn btn-ghost" onClick={() => onAskAi()}>{t("🤖 Ask AI to change it")}</button>
+          <button type="button" className="btn btn-ghost" onClick={clear} disabled={!!busy || weekEmpty}><Icon.trash /> {t("Clear week")}</button>
         </div>
       </div>
       {err && <Alert>{err}</Alert>}
 
       {/* week strip: one button per day with its calories */}
-      <div className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days of the week">
+      <div className="grid grid-cols-7 gap-1.5" role="tablist" aria-label={t("Days of the week")}>
         {days.map((d) => {
           const k = totals(dayItems(d), foods).kcal
           const on = d === day
@@ -111,25 +111,25 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
               <div className={`mx-auto mt-1 h-1.5 w-8 overflow-hidden rounded-full ${on ? 'bg-white/30' : 'bg-slate-100'}`}>
                 <div className={`h-full rounded-full ${on ? 'bg-white' : k > target * 1.15 ? 'bg-spice-500' : 'bg-brand-600'}`} style={{ width: `${Math.min(100, (k / target) * 100)}%` }} />
               </div>
-              {d === todayIso && <div className={`mt-0.5 text-[10px] font-semibold ${on ? 'text-white' : 'text-brand-700'}`}>Today</div>}
+              {d === todayIso && <div className={`mt-0.5 text-[10px] font-semibold ${on ? 'text-white' : 'text-brand-700'}`}>{t("Today")}</div>}
             </button>
           )
         })}
       </div>
 
-      {items === null ? <Spinner label="Loading your plan…" /> : (
+      {items === null ? <Spinner label={t("Loading your plan…")} /> : (
         <>
           <div className="card p-4">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <div>
                 <div className="text-sm text-slate-500">{dayLabel(day)}</div>
-                <div className="text-2xl font-bold">{tot.kcal.toLocaleString()} <span className="text-base font-medium text-slate-500">of {target.toLocaleString()} kcal</span></div>
+                <div className="text-2xl font-bold">{tot.kcal.toLocaleString(locale())} <span className="text-base font-medium text-slate-500">{t('of {n} kcal', { n: target.toLocaleString(locale()) })}</span></div>
               </div>
               <div className="flex gap-4 text-sm">
-                <div><div className="text-slate-500">Protein</div><b>{tot.protein_g} g</b></div>
-                <div><div className="text-slate-500">Carbs</div><b>{tot.carbs_g} g</b></div>
-                <div><div className="text-slate-500">Fat</div><b>{tot.fat_g} g</b></div>
-                <div><div className="text-slate-500">Fibre</div><b>{tot.fibre_g} g</b></div>
+                <div><div className="text-slate-500">{t("Protein")}</div><b>{tot.protein_g} g</b></div>
+                <div><div className="text-slate-500">{t("Carbs")}</div><b>{tot.carbs_g} g</b></div>
+                <div><div className="text-slate-500">{t("Fat")}</div><b>{tot.fat_g} g</b></div>
+                <div><div className="text-slate-500">{t("Fibre")}</div><b>{tot.fibre_g} g</b></div>
               </div>
             </div>
             <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
@@ -139,14 +139,14 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
               <p className="mt-2 text-sm text-slate-700"><b>{t('Eaten: {kcal} kcal', { kcal: eaten.kcal.toLocaleString(locale()) })}</b> · {t('{done} of {all} meals as planned', { done: eaten.followed, all: eaten.planned })}</p>
             )}
             {canTick && eaten.logged === 0 && tot.kcal > 0 && <p className="mt-2 text-xs text-slate-500">{t('Tick each meal when you have it, so you can see what you really ate.')}</p>}
-            {tot.unknown > 0 && <p className="mt-2 text-xs text-slate-500">{tot.unknown} food{tot.unknown > 1 ? 's have' : ' has'} no nutrition figures, so the total is lower than the real amount.</p>}
+            {tot.unknown > 0 && <p className="mt-2 text-xs text-slate-500">{t('Foods without nutrition figures: {n}. The real total is higher.', { n: tot.unknown })}</p>}
           </div>
 
           {weekEmpty && (
             <div className="card flex flex-col items-center gap-2 p-6 text-center">
               <div className="text-4xl">🗓️</div>
-              <p className="font-semibold">Your week is empty</p>
-              <p className="max-w-md text-sm text-slate-600">Tap <b>Fill my week</b> to plan every meal from your country's dishes, matched to your diet and goals. Then swap anything you don't fancy.</p>
+              <p className="font-semibold">{t("Your week is empty")}</p>
+              <p className="max-w-md text-sm text-slate-600">{t('Tap "Fill my week" to plan every meal from your country\'s dishes, matched to your diet and goals. Then swap anything you don\'t fancy.')}</p>
             </div>
           )}
 
@@ -155,12 +155,12 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
               const list = dayItems(day).filter((i) => i.meal === meal)
               const mk = totals(list, foods).kcal
               return (
-                <section key={meal} className="card p-4" aria-label={MEAL_LABEL[meal]}>
+                <section key={meal} className="card p-4" aria-label={t(MEAL_LABEL[meal])}>
                   <div className="mb-2 flex items-center justify-between">
-                    <h3 className="font-bold">{MEAL_ICON[meal]} {MEAL_LABEL[meal]}</h3>
-                    <span className="text-sm text-slate-500">{mk ? kcal(mk) : ''}{mealT[meal] ? ` · aim ${mealT[meal]}` : ''}</span>
+                    <h3 className="font-bold">{MEAL_ICON[meal]} {t(MEAL_LABEL[meal])}</h3>
+                    <span className="text-sm text-slate-500">{mk ? kcal(mk) : ''}{mealT[meal] ? ` · ${t('aim {n}', { n: mealT[meal] })}` : ''}</span>
                   </div>
-                  {list.length === 0 && <p className="mb-2 text-sm text-slate-500">Nothing planned.</p>}
+                  {list.length === 0 && <p className="mb-2 text-sm text-slate-500">{t("Nothing planned.")}</p>}
                   <ul className="space-y-2">
                     {list.map((it) => {
                       const f = foods.get(it.food_id)
@@ -172,10 +172,10 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
                               <div className="text-xs text-slate-500">{f?.serving}{f?.kcal != null ? ` · ${kcal(f.kcal * it.servings)}` : ''}</div>
                             </div>
                             <div className="flex shrink-0 items-center gap-0.5">
-                              <button type="button" className="rounded-lg p-1.5 text-slate-500 hover:bg-white" aria-label={`Fewer servings of ${f?.name}`} disabled={it.servings <= 0.5 || !!busy}
+                              <button type="button" className="rounded-lg p-1.5 text-slate-500 hover:bg-white" aria-label={t("Fewer servings of {v0}", { v0: f?.name ?? '' })} disabled={it.servings <= 0.5 || !!busy}
                                 onClick={() => run('serv', () => updatePlanItem(it.id!, { servings: Math.max(0.5, it.servings - 0.5) }))}><Icon.minus /></button>
-                              <span className="w-8 text-center text-sm font-semibold" aria-label={`${it.servings} servings`}>×{it.servings}</span>
-                              <button type="button" className="rounded-lg p-1.5 text-slate-500 hover:bg-white" aria-label={`More servings of ${f?.name}`} disabled={it.servings >= 4 || !!busy}
+                              <span className="w-8 text-center text-sm font-semibold" aria-label={t("{v0} servings", { v0: it.servings })}>×{it.servings}</span>
+                              <button type="button" className="rounded-lg p-1.5 text-slate-500 hover:bg-white" aria-label={t("More servings of {v0}", { v0: f?.name ?? '' })} disabled={it.servings >= 4 || !!busy}
                                 onClick={() => run('serv', () => updatePlanItem(it.id!, { servings: Math.min(4, it.servings + 0.5) }))}><Icon.plus /></button>
                             </div>
                           </div>
@@ -188,24 +188,24 @@ export default function Planner({ profile, start, setStart, reloadKey, onAskAi }
                             </div>
                           )}
                           <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                            {f && <button type="button" className="chip chip-off py-0.5 text-brand-800" onClick={() => openRecipe(f)}><Icon.pot className="h-3.5 w-3.5" /> Recipe</button>}
-                            <button type="button" className="chip chip-off py-0.5" onClick={() => setPick({ meal, replace: it })} disabled={it.locked || isLogged(it)}><Icon.swap className="h-3.5 w-3.5" /> Swap</button>
+                            {f && <button type="button" className="chip chip-off py-0.5 text-brand-800" onClick={() => openRecipe(f)}><Icon.pot className="h-3.5 w-3.5" /> {t("Recipe")}</button>}
+                            <button type="button" className="chip chip-off py-0.5" onClick={() => setPick({ meal, replace: it })} disabled={it.locked || isLogged(it)}><Icon.swap className="h-3.5 w-3.5" /> {t("Swap")}</button>
                             <button type="button" className={`chip py-0.5 ${it.locked ? 'chip-on' : 'chip-off'}`} aria-pressed={it.locked} onClick={() => run('lock', () => updatePlanItem(it.id!, { locked: !it.locked }))}
-                              title="Locked meals stay when you fill or clear the week, and Ask AI leaves them alone">{it.locked ? <Icon.lock className="h-3.5 w-3.5" /> : <Icon.unlock className="h-3.5 w-3.5" />} {it.locked ? 'Locked' : 'Lock'}</button>
-                            <button type="button" className="chip chip-off py-0.5 text-red-700" onClick={() => run('del', () => deletePlanItem(it.id!))}><Icon.trash className="h-3.5 w-3.5" /> Remove</button>
+                              title={t("Locked meals stay when you fill or clear the week, and Ask AI leaves them alone")}>{it.locked ? <Icon.lock className="h-3.5 w-3.5" /> : <Icon.unlock className="h-3.5 w-3.5" />} {it.locked ? t("Locked") : t("Lock")}</button>
+                            <button type="button" className="chip chip-off py-0.5 text-red-700" onClick={() => run('del', () => deletePlanItem(it.id!))}><Icon.trash className="h-3.5 w-3.5" /> {t("Remove")}</button>
                           </div>
                         </li>
                       )
                     })}
                   </ul>
                   <button type="button" className="mt-2 flex w-full items-center justify-center gap-1 rounded-xl border border-dashed border-slate-300 py-2 text-sm font-semibold text-brand-700 hover:border-brand-600 hover:bg-brand-50" onClick={() => setPick({ meal })}>
-                    <Icon.plus /> Add to {MEAL_LABEL[meal].toLowerCase()}
+                    <Icon.plus /> {t('Add to {meal}', { meal: t(MEAL_LABEL[meal]).toLowerCase() })}
                   </button>
                 </section>
               )
             })}
           </div>
-          <p className="text-center text-xs text-slate-500">Calories and nutrients are approximate. CDM Food is not medical advice.</p>
+          <p className="text-center text-xs text-slate-500">{t("Calories and nutrients are approximate. CDM Food is not medical advice.")}</p>
         </>
       )}
 

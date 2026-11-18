@@ -1,5 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { TAG_LABEL, type Food } from '../lib/planner'
+import { locale, t } from '../i18n'
 
 const I = (d: ReactNode, size = 18) => ({ className = '' }: { className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{d}</svg>
@@ -26,6 +28,7 @@ export const Icon = {
   print: I(<><path d="M6 9V2h12v7" /><rect x="6" y="14" width="12" height="8" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /></>),
   copy: I(<><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>),
   star: I(<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />),
+  chart: I(<><path d="M3 3v18h18" /><path d="m7 15 4-4 3 3 6-6" /></>),
   pot: I(<><path d="M3 11h18v3a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7z" /><path d="M1 11h2M21 11h2M8 7c0-1 1-1 1-2s-1-1-1-2M12 7c0-1 1-1 1-2s-1-1-1-2M16 7c0-1 1-1 1-2s-1-1-1-2" /></>),
   play: I(<path d="M7 4v16l13-8z" />),
   clock: I(<><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></>),
@@ -33,10 +36,10 @@ export const Icon = {
   external: I(<><path d="M15 3h6v6M10 14 21 3" /><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></>),
 }
 
-export function Spinner({ label = 'Loading…' }: { label?: string }) {
+export function Spinner({ label = /*i18n*/ 'Loading…' }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-3 py-10 text-slate-500" role="status">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-700" />{label}
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-700" />{t(label)}
     </div>
   )
 }
@@ -52,17 +55,19 @@ export function Modal({ open, title, onClose, children, wide = false }: { open: 
     return () => { window.removeEventListener('keydown', onKey); prev?.focus?.() }
   }, [open, onClose])
   if (!open) return null
-  return (
+  // rendered at the end of <body>, so a parent with backdrop blur or transforms cannot trap it
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-0 sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title}
         className={`flex max-h-[92vh] w-full flex-col rounded-t-3xl bg-white shadow-2xl outline-none sm:rounded-3xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}>
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <h2 className="text-lg font-bold">{title}</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100" aria-label="Close"><Icon.x /></button>
+          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100" aria-label={t("Close")}><Icon.x /></button>
         </div>
-        <div className="overflow-y-auto px-5 py-4">{children}</div>
+        <div className="min-h-0 overflow-y-auto px-5 py-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -73,15 +78,16 @@ export function Alert({ children, tone = 'error' }: { children: ReactNode; tone?
 
 const CONTAINS = new Set(['meat', 'poultry', 'fish', 'shellfish', 'pork', 'dairy', 'egg', 'nuts', 'gluten', 'soy', 'sesame', 'alcohol'])
 export function Tags({ food, max = 6 }: { food: Food; max?: number }) {
-  const good = food.tags.filter((t) => !CONTAINS.has(t))
-  const has = food.tags.filter((t) => CONTAINS.has(t))
+  const good = food.tags.filter((tb) => !CONTAINS.has(tb))
+  const has = food.tags.filter((tb) => CONTAINS.has(tb))
   return (
     <div className="flex flex-wrap gap-1">
-      {good.slice(0, max).map((t) => <span key={t} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-800">{TAG_LABEL[t] ?? t}</span>)}
-      {has.slice(0, max).map((t) => <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{TAG_LABEL[t] ?? t}</span>)}
+      {good.slice(0, max).map((tb) => <span key={tb} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-800">{t(TAG_LABEL[tb] ?? tb)}</span>)}
+      {has.slice(0, max).map((tb) => <span key={tb} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{t(TAG_LABEL[tb] ?? tb)}</span>)}
     </div>
   )
 }
 
-export const kcal = (n: number | null | undefined) => (n == null ? '–' : `${Math.round(n).toLocaleString()} kcal`)
-export const cost = (n: number | null | undefined) => (n ? ['', 'Budget', 'Moderate', 'Special'][n] ?? '' : '')
+export const kcal = (n: number | null | undefined) => (n == null ? '–' : `${Math.round(n).toLocaleString(locale())} kcal`)
+const COST = ['', /*i18n*/ 'Budget', /*i18n*/ 'Moderate', /*i18n*/ 'Special']
+export const cost = (n: number | null | undefined) => (n && COST[n] ? t(COST[n]) : '')

@@ -112,10 +112,10 @@ function WeighIn({ profile, log, imperial, onSaved, onError }: { profile: Profil
     <section className="card p-4">
       <h2 className="mb-3 font-bold">{t('Weigh-ins')}</h2>
       <form onSubmit={save} className="flex flex-wrap items-end gap-2">
-        <label className="text-sm font-semibold">{imperial ? t('Weight (lb)') : t('Weight (kg)')}
+        <label className="flex flex-col text-sm font-semibold">{imperial ? t('Weight (lb)') : t('Weight (kg)')}
           <input className="input mt-1 w-32" type="number" inputMode="decimal" step="0.1" required value={val} onChange={(e) => setVal(e.target.value)} placeholder={profile.weight_kg ? String(imperial ? kgToLb(profile.weight_kg) : profile.weight_kg) : ''} />
         </label>
-        <label className="text-sm font-semibold">{t('Date')}
+        <label className="flex flex-col text-sm font-semibold">{t('Date')}
           <input className="input mt-1 w-40" type="date" max={today} value={day} onChange={(e) => setDay(e.target.value)} />
         </label>
         <button className="btn btn-primary" disabled={busy}>{busy ? t('Saving…') : t('Save weigh-in')}</button>
@@ -145,7 +145,7 @@ function WeightChart({ log, target, imperial }: { log: Weigh[]; target: number |
   const tv = target ? conv(target) : null
   const lo = Math.floor(Math.min(...vals, tv ?? Infinity) - 1)
   const hi = Math.ceil(Math.max(...vals, tv ?? -Infinity) + 1)
-  const W = 600, H = 160, P = 28
+  const W = 900, H = 200, P = 30
   const t0 = new Date(log[0].day).getTime(), t1 = new Date(log[log.length - 1].day).getTime()
   const x = (d: string) => (t1 === t0 ? W / 2 : P + ((new Date(d).getTime() - t0) / (t1 - t0)) * (W - P * 2))
   const y = (v: number) => H - P - ((v - lo) / Math.max(1, hi - lo)) * (H - P * 2)
@@ -153,7 +153,7 @@ function WeightChart({ log, target, imperial }: { log: Weigh[]; target: number |
   const unit = imperial ? 'lb' : 'kg'
   return (
     <figure className="mt-3">
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-40 w-full" role="img" aria-label={t('Weight from {a} to {b}', { a: `${vals[0]} ${unit}`, b: `${vals[vals.length - 1]} ${unit}` })}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={t('Weight from {a} to {b}', { a: `${vals[0]} ${unit}`, b: `${vals[vals.length - 1]} ${unit}` })}>
         <line x1={P} x2={W - P} y1={y(lo)} y2={y(lo)} stroke="#e2e8f0" />
         <text x={4} y={y(hi) + 4} fontSize="11" fill="#64748b">{hi}</text>
         <text x={4} y={y(lo) + 4} fontSize="11" fill="#64748b">{lo}</text>

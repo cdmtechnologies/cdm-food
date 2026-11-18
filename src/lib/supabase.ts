@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { t } from '../i18n'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -16,10 +17,10 @@ export async function callFunction<T = Record<string, unknown>>(name: string, bo
   if (error) {
     let msg = error.message
     try { msg = (await (error as { context?: Response }).context?.json())?.error || msg } catch { /* keep message */ }
-    throw new Error(msg || 'Something went wrong. Please try again.')
+    throw new Error(t(msg || 'Something went wrong. Please try again.'))
   }
   if (data && typeof data === 'object' && 'error' in data && (data as { error?: string }).error) {
-    const e = new Error((data as { error: string }).error) as Error & { limited?: boolean; premiumNeeded?: boolean }
+    const e = new Error(t((data as { error: string }).error)) as Error & { limited?: boolean; premiumNeeded?: boolean }
     e.limited = !!(data as { limited?: boolean }).limited
     e.premiumNeeded = !!(data as { premium_needed?: boolean }).premium_needed
     throw e

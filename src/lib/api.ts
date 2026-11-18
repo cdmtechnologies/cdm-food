@@ -4,7 +4,7 @@ import COUNTRY_LIST from './countries.json'
 import type { Allergy, Diet, Food, Goal, Meal, PlanItem } from './planner'
 import type { Recipe } from './recipe'
 import type { Activity, Sex } from './body'
-import { currentLang } from '../i18n'
+import { currentLang, t } from '../i18n'
 
 export const FOOD_COLS = 'id, country_code, name, description, meals, serving, kcal, protein_g, carbs_g, fat_g, fibre_g, tags, ingredients, cost_level, prep_minutes, source, owner_id'
 
@@ -23,7 +23,7 @@ export type Settings = { price_monthly_ngn: number; price_yearly_ngn: number; pr
 export const isPremium = (p: ProfileRow | null) => !!p?.premium_until && new Date(p.premium_until) > new Date()
 
 const num = (f: Food): Food => ({ ...f, protein_g: f.protein_g == null ? null : Number(f.protein_g), carbs_g: f.carbs_g == null ? null : Number(f.carbs_g), fat_g: f.fat_g == null ? null : Number(f.fat_g), fibre_g: f.fibre_g == null ? null : Number(f.fibre_g) })
-const fail = (e: { message: string } | null) => { if (e) throw new Error(e.message) }
+const fail = (e: { message: string } | null) => { if (e) throw new Error(t(e.message)) }
 
 // ---------- local copies, so menus still open when the connection is poor ----------
 const cacheGet = <T,>(k: string): { at: number; data: T } | null => { try { const s = localStorage.getItem('cdmfood:' + k); return s ? JSON.parse(s) : null } catch { return null } }
@@ -49,7 +49,15 @@ export async function saveProfile(id: string, patch: Partial<Omit<ProfileRow, 'i
 
 // ---------- countries and menus ----------
 export const ALL_COUNTRIES: Country[] = (COUNTRY_LIST as [string, string, string][]).map(([code, name, region]) => ({ code, name, region }))
-export const countryName = (code: string | null | undefined) => ALL_COUNTRIES.find((c) => c.code === code)?.name ?? code ?? ''
+const regionNames = new Map<string, Intl.DisplayNames | null>()
+/** A country's name in the app's language (English when the browser has no name for it). */
+export function countryName(code: string | null | undefined): string {
+  const en = ALL_COUNTRIES.find((c) => c.code === code)?.name ?? code ?? ''
+  const lang = currentLang()
+  if (!code || lang === 'en' || code === 'XK') return en
+  if (!regionNames.has(lang)) { try { regionNames.set(lang, new Intl.DisplayNames([lang], { type: 'region', fallback: 'none' })) } catch { regionNames.set(lang, null) } }
+  try { return regionNames.get(lang)?.of(code) ?? en } catch { return en }
+}
 export function flag(code: string | null | undefined) {
   if (!code || !/^[A-Z]{2}$/.test(code)) return '🌍'
   return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))

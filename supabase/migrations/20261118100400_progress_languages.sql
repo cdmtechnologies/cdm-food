@@ -116,3 +116,13 @@ REVOKE ALL ON FUNCTION public.claim_ui_lang(text) FROM public, anon, authenticat
 REVOKE ALL ON FUNCTION public.release_ui_lang(text) FROM public, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_ui_lang(text) TO service_role;
 GRANT EXECUTE ON FUNCTION public.release_ui_lang(text) TO service_role;
+
+-- new accounts keep the language they signed up in
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE v_lang text := NEW.raw_user_meta_data ->> 'language';
+BEGIN
+  IF v_lang IS NULL OR v_lang !~ '^[a-z]{2,3}(-[A-Za-z]{2,4})?$' THEN v_lang := 'en'; END IF;
+  INSERT INTO profiles (id, display_name, language) VALUES (NEW.id, left(coalesce(NEW.raw_user_meta_data ->> 'name', ''), 80), v_lang) ON CONFLICT DO NOTHING;
+  RETURN NEW;
+END $$;
+REVOKE ALL ON FUNCTION public.handle_new_user() FROM public, anon, authenticated;

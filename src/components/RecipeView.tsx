@@ -3,6 +3,7 @@ import { getRecipe } from '../lib/api'
 import { embedUrl, formatQty, minutesLabel, scaleQty, youtubeSearchUrl, type Recipe, type Video } from '../lib/recipe'
 import { AiRobot } from './AiRobot'
 import { Alert, Icon, Modal } from './ui'
+import { t } from '../i18n'
 
 /** Recipe, step-by-step cooking mode and short cooking videos (Premium). Opened with openRecipe() from anywhere. */
 export default function RecipeView({ premium, household, onUpgrade }: { premium: boolean; household: number; onUpgrade: () => void }) {
@@ -47,8 +48,8 @@ export default function RecipeView({ premium, household, onUpgrade }: { premium:
       {busy && (
         <div className="flex flex-col items-center gap-3 py-10 text-center text-slate-600" role="status">
           <AiRobot body size={110} state="writing" className="text-brand-700" />
-          <p>Writing the recipe for you…</p>
-          <p className="text-xs text-slate-400">The first time takes a few seconds. After that it opens straight away.</p>
+          <p>{t("Writing the recipe for you…")}</p>
+          <p className="text-xs text-slate-400">{t("The first time takes a few seconds. After that it opens straight away.")}</p>
         </div>
       )}
 
@@ -57,17 +58,17 @@ export default function RecipeView({ premium, household, onUpgrade }: { premium:
           <div className="flex items-center gap-4 rounded-2xl bg-spice-50 p-4">
             <AiRobot body size={84} state="talking" className="shrink-0 text-brand-700" />
             <div>
-              <p className="font-semibold">Recipes and cooking videos are part of Premium</p>
+              <p className="font-semibold">{t("Recipes and cooking videos are part of Premium")}</p>
               <ul className="mt-1 list-disc pl-5 text-sm text-slate-700">
-                <li>Full ingredients, sized for your household</li>
-                <li>Step-by-step cooking mode with timers that reads the steps aloud</li>
-                <li>Short cooking videos for the dish</li>
-                <li>Ask AI for any recipe and it opens here</li>
+                <li>{t("Full ingredients, sized for your household")}</li>
+                <li>{t("Step-by-step cooking mode with timers that reads the steps aloud")}</li>
+                <li>{t("Short cooking videos for the dish")}</li>
+                <li>{t("Ask AI for any recipe and it opens here")}</li>
               </ul>
             </div>
           </div>
-          <button type="button" className="btn btn-spice w-full" onClick={() => { close(); onUpgrade() }}><Icon.star /> Go Premium</button>
-          <a className="btn btn-ghost w-full" href={youtubeSearchUrl(search)} target="_blank" rel="noopener noreferrer"><Icon.external /> Search videos on YouTube</a>
+          <button type="button" className="btn btn-spice w-full" onClick={() => { close(); onUpgrade() }}><Icon.star /> {t("Go Premium")}</button>
+          <a className="btn btn-ghost w-full" href={youtubeSearchUrl(search)} target="_blank" rel="noopener noreferrer"><Icon.external /> {t("Search videos on YouTube")}</a>
         </div>
       )}
 
@@ -78,17 +79,17 @@ export default function RecipeView({ premium, household, onUpgrade }: { premium:
           <div className="flex flex-wrap items-center gap-3 text-sm">
             {recipe.total_minutes ? <span className="chip chip-off"><Icon.clock className="h-4 w-4" /> {minutesLabel(recipe.total_minutes)}</span> : null}
             <span className="flex items-center gap-1 rounded-full border border-slate-200 px-1 py-0.5">
-              <button type="button" className="rounded-full p-1 hover:bg-slate-100 disabled:opacity-40" disabled={people <= 1} onClick={() => setPeople((p) => p - 1)} aria-label="Fewer people"><Icon.minus /></button>
-              <span className="min-w-[5.5rem] text-center font-semibold" aria-live="polite">For {people} {people === 1 ? 'person' : 'people'}</span>
-              <button type="button" className="rounded-full p-1 hover:bg-slate-100 disabled:opacity-40" disabled={people >= 20} onClick={() => setPeople((p) => p + 1)} aria-label="More people"><Icon.plus /></button>
+              <button type="button" className="rounded-full p-1 hover:bg-slate-100 disabled:opacity-40" disabled={people <= 1} onClick={() => setPeople((p) => p - 1)} aria-label={t("Fewer people")}><Icon.minus /></button>
+              <span className="min-w-[5.5rem] text-center font-semibold" aria-live="polite">{t('For {n} people', { n: people })}</span>
+              <button type="button" className="rounded-full p-1 hover:bg-slate-100 disabled:opacity-40" disabled={people >= 20} onClick={() => setPeople((p) => p + 1)} aria-label={t("More people")}><Icon.plus /></button>
             </span>
-            <button type="button" className="btn btn-primary ml-auto" onClick={() => setCooking(true)}><Icon.pot /> Start cooking</button>
+            <button type="button" className="btn btn-primary ml-auto" onClick={() => setCooking(true)}><Icon.pot /> {t("Start cooking")}</button>
           </div>
 
           <Videos videos={recipe.videos} search={search} />
 
           <section>
-            <h3 className="mb-2 font-bold">Ingredients</h3>
+            <h3 className="mb-2 font-bold">{t("Ingredients")}</h3>
             <ul className="grid gap-1.5 sm:grid-cols-2">
               {recipe.ingredients.map((g, i) => (
                 <li key={i}>
@@ -102,7 +103,7 @@ export default function RecipeView({ premium, household, onUpgrade }: { premium:
           </section>
 
           <section>
-            <h3 className="mb-2 font-bold">Steps</h3>
+            <h3 className="mb-2 font-bold">{t("Steps")}</h3>
             <ol className="space-y-2">
               {recipe.steps.map((s, i) => (
                 <li key={i} className="flex gap-3">
@@ -115,11 +116,11 @@ export default function RecipeView({ premium, household, onUpgrade }: { premium:
 
           {recipe.tips.length > 0 && (
             <section className="rounded-2xl bg-brand-50 p-4">
-              <h3 className="mb-1 font-bold">Tips</h3>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">{recipe.tips.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              <h3 className="mb-1 font-bold">{t("Tips")}</h3>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">{recipe.tips.map((tb, i) => <li key={i}>{tb}</li>)}</ul>
             </section>
           )}
-          <p className="text-xs text-slate-400">Recipe written by AI. Amounts are a guide: taste as you go, and cook meat, fish and eggs right through.</p>
+          <p className="text-xs text-slate-400">{t("Recipe written by AI. Amounts are a guide: taste as you go, and cook meat, fish and eggs right through.")}</p>
         </div>
       )}
 
@@ -134,16 +135,16 @@ function Videos({ videos, search }: { videos: Video[]; search: string }) {
     return (
       <a className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3 hover:bg-slate-50" href={youtubeSearchUrl(search)} target="_blank" rel="noopener noreferrer">
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white"><Icon.play className="h-5 w-5" /></span>
-        <span className="text-sm"><b>Watch short cooking videos</b><br /><span className="text-slate-500">Opens YouTube in a new tab</span></span>
+        <span className="text-sm"><b>{t("Watch short cooking videos")}</b><br /><span className="text-slate-500">{t("Opens YouTube in a new tab")}</span></span>
       </a>
     )
   }
   return (
     <section>
-      <h3 className="mb-2 font-bold">Short videos</h3>
+      <h3 className="mb-2 font-bold">{t("Short videos")}</h3>
       {playing && (
         <div className="mb-3 aspect-video overflow-hidden rounded-2xl bg-black">
-          <iframe className="h-full w-full" src={embedUrl(playing) + '&autoplay=1'} title="Cooking video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" />
+          <iframe className="h-full w-full" src={embedUrl(playing) + '&autoplay=1'} title={t("Cooking video")} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" />
         </div>
       )}
       <div className="flex gap-3 overflow-x-auto pb-1">
@@ -159,7 +160,7 @@ function Videos({ videos, search }: { videos: Video[]; search: string }) {
           </button>
         ))}
       </div>
-      <a className="mt-1 inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800" href={youtubeSearchUrl(search)} target="_blank" rel="noopener noreferrer"><Icon.external className="h-3.5 w-3.5" /> More on YouTube</a>
+      <a className="mt-1 inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800" href={youtubeSearchUrl(search)} target="_blank" rel="noopener noreferrer"><Icon.external className="h-3.5 w-3.5" /> {t("More on YouTube")}</a>
     </section>
   )
 }
@@ -184,8 +185,8 @@ function CookMode({ recipe, people, onDone }: { recipe: Recipe; people: number; 
   useEffect(() => { setLeft(null) }, [n])
   useEffect(() => {
     if (left == null || left <= 0) return
-    const t = setTimeout(() => setLeft((s) => (s == null ? null : s - 1)), 1000)
-    return () => clearTimeout(t)
+    const tb = setTimeout(() => setLeft((s) => (s == null ? null : s - 1)), 1000)
+    return () => clearTimeout(tb)
   }, [left])
   useEffect(() => { if (left === 0) ding() }, [left])
 
@@ -200,22 +201,22 @@ function CookMode({ recipe, people, onDone }: { recipe: Recipe; people: number; 
   return (
     <div className="flex min-h-[55vh] flex-col">
       <div className="mb-3 flex items-center gap-2">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={n + 1} aria-label="Progress">
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={n + 1} aria-label={t("Progress")}>
           <div className="h-full bg-brand-600 transition-all" style={{ width: `${((n + 1) / steps.length) * 100}%` }} />
         </div>
-        {speakable && <button type="button" onClick={() => { setVoice((v) => !v); speechSynthesis.cancel() }} aria-pressed={voice} className={`chip ${voice ? 'chip-on' : 'chip-off'}`}><Icon.speaker className="h-4 w-4" /> {voice ? 'Reading aloud' : 'Read aloud'}</button>}
+        {speakable && <button type="button" onClick={() => { setVoice((v) => !v); speechSynthesis.cancel() }} aria-pressed={voice} className={`chip ${voice ? 'chip-on' : 'chip-off'}`}><Icon.speaker className="h-4 w-4" /> {voice ? t("Reading aloud") : t("Read aloud")}</button>}
       </div>
 
       <div className="flex flex-1 items-start gap-3" aria-live="polite">
         <AiRobot body size={90} state={left ? 'thinking' : voice ? 'talking' : 'writing'} className="hidden shrink-0 text-brand-700 sm:block" />
         {step ? (
           <div>
-            <div className="text-sm font-semibold text-brand-700">Step {n + 1} of {steps.length}</div>
+            <div className="text-sm font-semibold text-brand-700">{t('Step {n} of {all}', { n: n + 1, all: steps.length })}</div>
             <p className="mt-1 text-2xl font-semibold leading-snug text-slate-900">{step.text}</p>
           </div>
         ) : (
           <div>
-            <div className="text-sm font-semibold text-brand-700">Get everything ready · for {people} {people === 1 ? 'person' : 'people'}</div>
+            <div className="text-sm font-semibold text-brand-700">{t('Get everything ready · for {n} people', { n: people })}</div>
             <ul className="mt-2 space-y-1 text-lg">
               {recipe.ingredients.map((g, i) => <li key={i}><b>{formatQty(scaleQty(g.qty, recipe.serves, people), g.unit)}</b> {g.item}</li>)}
             </ul>
@@ -227,21 +228,21 @@ function CookMode({ recipe, people, onDone }: { recipe: Recipe; people: number; 
         <div className="my-4 flex items-center gap-3 rounded-2xl bg-brand-50 p-3">
           <Icon.clock className="h-6 w-6 text-brand-700" />
           {left == null ? (
-            <button type="button" className="btn btn-primary" onClick={() => setLeft(step.minutes! * 60)}>Start {minutesLabel(step.minutes)} timer</button>
+            <button type="button" className="btn btn-primary" onClick={() => setLeft(step.minutes! * 60)}>{t('Start a {time} timer', { time: minutesLabel(step.minutes) })}</button>
           ) : (
             <>
-              <span className={`font-mono text-3xl font-bold ${left === 0 ? 'animate-pulse text-spice-600' : 'text-slate-900'}`} role="timer">{left === 0 ? 'Time!' : mmss(left)}</span>
-              <button type="button" className="btn btn-ghost ml-auto" onClick={() => setLeft(null)}>Reset</button>
+              <span className={`font-mono text-3xl font-bold ${left === 0 ? 'animate-pulse text-spice-600' : 'text-slate-900'}`} role="timer">{left === 0 ? t("Time!") : mmss(left)}</span>
+              <button type="button" className="btn btn-ghost ml-auto" onClick={() => setLeft(null)}>{t("Reset")}</button>
             </>
           )}
         </div>
       ) : <div className="my-4" />}
 
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" className="btn btn-ghost" onClick={() => (n < 0 ? onDone() : setN(n - 1))}><Icon.left /> {n < 0 ? 'Back to recipe' : 'Back'}</button>
+        <button type="button" className="btn btn-ghost" onClick={() => (n < 0 ? onDone() : setN(n - 1))}><Icon.left /> {n < 0 ? t("Back to recipe") : t("Back")}</button>
         {n < steps.length - 1
-          ? <button type="button" className="btn btn-primary" onClick={() => setN(n + 1)}>{n < 0 ? 'First step' : 'Next step'} <Icon.right /></button>
-          : <button type="button" className="btn btn-spice" onClick={onDone}><Icon.check /> Done. Enjoy!</button>}
+          ? <button type="button" className="btn btn-primary" onClick={() => setN(n + 1)}>{n < 0 ? t("First step") : t("Next step")} <Icon.right /></button>
+          : <button type="button" className="btn btn-spice" onClick={onDone}><Icon.check /> {t("Done. Enjoy!")}</button>}
       </div>
     </div>
   )
@@ -252,11 +253,11 @@ function ding() {
     navigator.vibrate?.([300, 150, 300])
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     const ctx = new Ctx()
-    ;[0, 0.35, 0.7].forEach((t) => {
+    ;[0, 0.35, 0.7].forEach((tb) => {
       const o = ctx.createOscillator(); const g = ctx.createGain()
       o.frequency.value = 880; o.connect(g); g.connect(ctx.destination)
-      g.gain.setValueAtTime(0.2, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3)
-      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.3)
+      g.gain.setValueAtTime(0.2, ctx.currentTime + tb); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + tb + 0.3)
+      o.start(ctx.currentTime + tb); o.stop(ctx.currentTime + tb + 0.3)
     })
     setTimeout(() => ctx.close(), 1500)
   } catch { /* no sound available */ }

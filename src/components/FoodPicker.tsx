@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ALL_COUNTRIES, countryFoods, flag, myFoods, searchFoods } from '../lib/api'
-import { MEAL_LABEL, unsuitable, type Food, type Meal, type Profile } from '../lib/planner'
+import { ALL_COUNTRIES, countryFoods, countryName, flag, myFoods, searchFoods } from '../lib/api'
+import { MEAL_LABEL, type Food, type Meal, type Profile } from '../lib/planner'
 import { Alert, Icon, kcal, Modal, Spinner, Tags } from './ui'
+import { t } from '../i18n'
+import { whyNot } from '../i18n/labels'
 
 /** Choose a food for a meal: from the person's country, any country, or their own foods. */
 export default function FoodPicker({ open, meal, profile, country, onPick, onClose, onAddOwn }: {
@@ -33,39 +35,39 @@ export default function FoodPicker({ open, meal, profile, country, onPick, onClo
     return (foods ?? [])
       .filter((f) => allMeals || f.meals.includes(meal))
       .filter((f) => !words || f.name.toLowerCase().includes(words) || f.ingredients.some((i) => i.toLowerCase().includes(words)))
-      .map((f) => ({ f, why: unsuitable(f, profile) }))
+      .map((f) => ({ f, why: whyNot(f, profile) }))
       .filter((x) => !suitsOnly || !x.why)
   }, [foods, q, meal, allMeals, suitsOnly, profile])
 
   return (
-    <Modal open={open} title={`Choose ${MEAL_LABEL[meal].toLowerCase()}`} onClose={onClose} wide>
+    <Modal open={open} title={t("Choose {v0}", { v0: t(MEAL_LABEL[meal]).toLowerCase() })} onClose={onClose} wide>
       <div className="mb-3 grid gap-2 sm:grid-cols-[1fr_14rem]">
         <label className="relative block">
-          <span className="sr-only">Search foods</span>
+          <span className="sr-only">{t("Search foods")}</span>
           <Icon.search className="pointer-events-none absolute left-3 top-3 text-slate-400" />
-          <input className="input pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder={from === 'any' ? 'Type at least 2 letters…' : 'Search dishes or ingredients'} autoFocus />
+          <input className="input pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder={from === 'any' ? t("Type at least 2 letters…") : t("Search dishes or ingredients")} autoFocus />
         </label>
         <label>
-          <span className="sr-only">Where from</span>
+          <span className="sr-only">{t("Where from")}</span>
           <select className="input" value={from} onChange={(e) => setFrom(e.target.value)}>
-            {country && <option value={country}>{flag(country)} {ALL_COUNTRIES.find((c) => c.code === country)?.name} dishes</option>}
-            <option value="mine">⭐ My own foods</option>
-            <option value="any">🌍 Search every country</option>
-            <optgroup label="Another country">
-              {ALL_COUNTRIES.filter((c) => c.code !== country).map((c) => <option key={c.code} value={c.code}>{flag(c.code)} {c.name}</option>)}
+            {country && <option value={country}>{flag(country)} {t('{country} dishes', { country: countryName(country) })}</option>}
+            <option value="mine">{t("⭐ My own foods")}</option>
+            <option value="any">{t("🌍 Search every country")}</option>
+            <optgroup label={t("Another country")}>
+              {ALL_COUNTRIES.filter((c) => c.code !== country).map((c) => <option key={c.code} value={c.code}>{flag(c.code)} {countryName(c.code)}</option>)}
             </optgroup>
           </select>
         </label>
       </div>
       <div className="mb-3 flex flex-wrap gap-2 text-sm">
-        <button type="button" className={`chip ${suitsOnly ? 'chip-on' : 'chip-off'}`} aria-pressed={suitsOnly} onClick={() => setSuitsOnly(!suitsOnly)}>Only foods that suit me</button>
-        <button type="button" className={`chip ${allMeals ? 'chip-on' : 'chip-off'}`} aria-pressed={allMeals} onClick={() => setAllMeals(!allMeals)}>Show all meal types</button>
+        <button type="button" className={`chip ${suitsOnly ? 'chip-on' : 'chip-off'}`} aria-pressed={suitsOnly} onClick={() => setSuitsOnly(!suitsOnly)}>{t("Only foods that suit me")}</button>
+        <button type="button" className={`chip ${allMeals ? 'chip-on' : 'chip-off'}`} aria-pressed={allMeals} onClick={() => setAllMeals(!allMeals)}>{t("Show all meal types")}</button>
       </div>
       {err && <Alert>{err}</Alert>}
       {foods === null ? <Spinner /> : shown.length === 0 ? (
         <div className="py-8 text-center text-slate-600">
-          <p>{from === 'any' && q.trim().length < 2 ? 'Type the name of a dish to search every country.' : 'No dishes found here.'}</p>
-          <button type="button" className="btn btn-ghost mt-3" onClick={onAddOwn}><Icon.plus /> Add your own food</button>
+          <p>{from === 'any' && q.trim().length < 2 ? t("Type the name of a dish to search every country.") : t("No dishes found here.")}</p>
+          <button type="button" className="btn btn-ghost mt-3" onClick={onAddOwn}><Icon.plus /> {t("Add your own food")}</button>
         </div>
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2">
@@ -84,7 +86,7 @@ export default function FoodPicker({ open, meal, profile, country, onPick, onClo
           ))}
         </ul>
       )}
-      <p className="mt-4 text-center text-sm text-slate-500">Can't find it? <button type="button" className="font-semibold text-brand-700 underline" onClick={onAddOwn}>Add your own food</button></p>
+      <p className="mt-4 text-center text-sm text-slate-500">{t("Can't find it?")} <button type="button" className="font-semibold text-brand-700 underline" onClick={onAddOwn}>{t("Add your own food")}</button></p>
     </Modal>
   )
 }
