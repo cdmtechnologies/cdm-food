@@ -1,0 +1,238 @@
+# CDM Food starter menus. One food per line:
+# country|name|meals (B L D S)|serving|kcal|protein g|carbs g|fat g|fibre g|tags|main ingredients|cost 1-3|minutes|description
+# Nutrition is approximate for one typical serving. Tags: meat poultry fish shellfish pork dairy egg nuts gluten soy sesame
+# (what it contains) and high_protein high_fibre low_carb low_gi whole_grain light fried sugary high_salt spicy.
+NG|Jollof rice with chicken|LD|1 plate (350 g)|650|30|85|20|3|poultry spicy|rice, tomato, pepper, onion, chicken, vegetable oil|2|60|Party favourite: rice cooked in a rich tomato and pepper base, served with chicken.
+NG|Fried rice with chicken|LD|1 plate (350 g)|690|28|88|25|4|poultry egg|rice, carrots, peas, green beans, liver, chicken, curry, thyme|2|60|Colourful Nigerian fried rice with mixed vegetables and chicken.
+NG|Egusi soup with pounded yam|LD|1 bowl + 1 wrap|780|28|90|35|8|meat fish|egusi (melon seeds), spinach, palm oil, beef, stockfish, crayfish, yam|2|90|Thick melon-seed soup with leafy greens, eaten with pounded yam.
+NG|Efo riro with eba|LD|1 bowl + 1 wrap|680|25|80|28|9|meat fish high_fibre|spinach, palm oil, locust beans, peppers, beef, stockfish, garri|2|60|Yoruba vegetable soup rich in greens, with eba.
+NG|Okra soup with fufu|LD|1 bowl + 1 wrap|620|26|75|22|7|meat fish|okra, palm oil, fish, beef, crayfish, cassava fufu|2|45|Draw soup of fresh okra with fish and meat.
+NG|Ogbono soup with pounded yam|LD|1 bowl + 1 wrap|790|26|92|36|6|meat fish|ogbono seeds, palm oil, bitterleaf, beef, dried fish, yam|2|60|Smooth, stretchy wild-mango-seed soup.
+NG|Bitterleaf soup (ofe onugbu) with fufu|LD|1 bowl + 1 wrap|700|27|82|28|6|meat fish|bitterleaf, cocoyam, palm oil, beef, stockfish, cassava fufu|2|90|Igbo classic thickened with cocoyam.
+NG|Banga soup with starch|LD|1 bowl + 1 wrap|760|24|80|38|5|meat fish|palm fruit, catfish, beef, banga spice, cassava starch|2|90|Delta palm-fruit soup with fresh catfish.
+NG|Edikang ikong soup|LD|1 bowl|560|30|20|38|10|meat fish high_fibre low_carb|ugu (pumpkin leaves), waterleaf, palm oil, beef, periwinkle, stockfish|3|90|Calabar soup packed with greens and protein; pair with a small swallow.
+NG|Afang soup|LD|1 bowl|540|28|18|36|9|meat fish shellfish high_fibre low_carb|afang leaves, waterleaf, palm oil, beef, periwinkle, crayfish|3|90|Efik and Ibibio soup of afang and waterleaf.
+NG|Moi moi|BLS|2 wraps (200 g)|330|18|30|14|8|egg fish high_protein high_fibre|beans, red pepper, onion, oil, egg, fish|1|90|Steamed bean pudding, often with egg and fish.
+NG|Akara and pap|B|5 balls + 1 cup pap|420|14|52|18|7|fried|beans, onion, pepper, oil, maize pap|1|40|Bean fritters with smooth fermented maize porridge.
+NG|Beans and fried plantain (dodo)|LD|1 plate|560|22|88|14|16|high_fibre high_protein|beans, palm oil, onion, pepper, ripe plantain|1|60|Beans porridge with sweet fried plantain.
+NG|Yam and egg sauce|B|2 slices yam + sauce|520|16|70|20|6|egg|yam, eggs, tomato, onion, pepper, oil|1|30|Boiled yam with scrambled eggs in tomato sauce.
+NG|Ofada rice with ayamase|LD|1 plate|720|26|85|30|5|meat spicy|ofada rice, green peppers, palm oil, beef, tripe, locust beans|2|90|Local rice with the famous green pepper "designer stew".
+NG|Goat meat pepper soup|D|1 bowl|320|35|6|17|1|meat spicy low_carb high_protein|goat meat, pepper soup spice, uziza, scent leaf|2|60|Light, spicy broth; good on its own or with a little yam.
+NG|Catfish pepper soup|D|1 bowl|280|32|5|13|1|fish spicy low_carb high_protein|catfish, pepper soup spice, scent leaf, onion|2|40|Fresh catfish in a peppery herb broth.
+NG|Tuwo shinkafa with miyan kuka|LD|1 plate + soup|600|18|95|15|8|meat fish|soft rice, baobab leaf powder, dried fish, beef, locust beans|1|60|Northern rice swallow with baobab-leaf soup.
+NG|Suya|SD|150 g|380|38|8|22|2|meat nuts spicy high_protein low_carb|beef, yaji spice (groundnut), onion, tomato|2|30|Spicy grilled beef skewers with onions.
+NG|Abacha (African salad)|LS|1 plate|450|12|55|22|6|fish|cassava shreds, palm oil, ugba, garden egg, crayfish, onion|1|30|Eastern cassava salad with oil bean seeds.
+NG|Noodles with egg|BL|1 pack + 1 egg|470|14|55|21|2|egg gluten high_salt|instant noodles, egg, onion, pepper|1|10|Quick instant noodles with egg and vegetables.
+NG|Bread, egg and tea|B|3 slices + 1 egg + tea|420|16|55|14|2|gluten egg dairy|bread, egg, tea, milk, sugar|1|10|Everyday quick breakfast.
+NG|Gizdodo|SD|1 plate|480|22|45|24|3|poultry fried|chicken gizzard, ripe plantain, peppers, onion|2|40|Gizzard and fried plantain in pepper sauce.
+NG|Boli and groundnut|SL|1 plantain + handful nuts|400|9|70|12|5|nuts|ripe plantain, roasted groundnuts|1|20|Roasted plantain street snack.
+NG|Unripe plantain porridge|LD|1 plate|520|12|85|14|8|fish low_gi|unripe plantain, palm oil, ugu, crayfish, pepper|1|45|Slow-release plantain pottage, popular for blood sugar.
+NG|Okpa|BS|1 wrap|380|17|45|14|8|high_protein|bambara nut flour, palm oil, pepper|1|60|Steamed bambara nut pudding from Enugu.
+NG|Ewa agoyin with bread|BL|1 plate|620|22|90|18|15|gluten high_fibre|mashed beans, dried pepper sauce, palm oil, bread|1|90|Soft mashed beans with dark pepper sauce.
+NG|Puff-puff|S|5 pieces|350|5|48|15|1|gluten fried sugary|flour, sugar, yeast, oil|1|60|Sweet fried dough balls.
+NG|Grilled fish with vegetables|D|1 fish + vegetables|420|42|18|20|5|fish high_protein low_carb|croaker or tilapia, pepper, onion, cabbage, carrots|2|45|Spicy grilled fish with a fresh vegetable side.
+NG|Vegetable soup with wheat swallow|LD|1 bowl + 1 wrap|560|28|55|24|10|meat fish gluten high_fibre|ugu, waterleaf, palm oil, beef, fish, wheat swallow|2|60|Greens-rich soup with a lighter wheat swallow.
+GH|Jollof rice with chicken (Ghana style)|LD|1 plate (350 g)|660|30|86|21|3|poultry spicy|perfumed rice, tomato, pepper, onion, chicken, oil|2|60|Ghana's take on jollof with fragrant rice.
+GH|Waakye|LD|1 plate|640|22|98|16|11|egg fish high_fibre|rice, black-eyed beans, sorghum leaves, shito, egg, gari|1|60|Rice and beans with shito, gari and egg.
+GH|Banku with grilled tilapia|LD|1 ball + 1 fish|720|40|85|22|4|fish spicy high_protein|fermented corn and cassava dough, tilapia, pepper sauce|2|60|Grilled tilapia with banku and fresh pepper.
+GH|Kenkey with fried fish and shito|LD|1 ball + fish|680|30|90|22|5|fish fried|fermented corn dough, fried fish, shito, onion, tomato|1|30|Ga kenkey with fish and hot pepper sauce.
+GH|Fufu with light soup|LD|1 bowl|650|30|85|18|4|meat spicy|cassava and plantain fufu, goat meat, tomato, pepper|2|90|Tomato-based light soup with goat meat.
+GH|Groundnut soup with rice balls (omo tuo)|LD|1 bowl|720|30|80|32|6|poultry nuts|groundnut paste, chicken, tomato, rice balls|2|90|Creamy peanut soup with soft rice balls.
+GH|Red red with plantain|LD|1 plate|580|20|85|18|15|high_fibre|black-eyed beans, palm oil, tomato, ripe plantain|1|45|Bean stew in red palm oil with fried plantain.
+GH|Kontomire stew with boiled yam|LD|1 plate|560|20|72|22|9|fish egg high_fibre|cocoyam leaves, palm oil, egusi, fish, egg, yam|1|45|Cocoyam leaf stew with yam or plantain.
+GH|Hausa koko with koose|B|1 cup + 4 koose|380|11|58|12|6|fried spicy|millet porridge, ginger, beans fritters|1|30|Spiced millet porridge with bean fritters.
+GH|Tuo zaafi with ayoyo soup|LD|1 plate|560|18|90|14|9|meat high_fibre|maize and cassava flour, jute leaves, dried fish, beef|1|60|Northern Ghana's TZ with jute-leaf soup.
+GH|Ampesi with garden egg stew|LD|1 plate|560|18|85|16|10|fish high_fibre|boiled yam and plantain, garden eggs, fish, palm oil|1|45|Boiled staples with garden egg stew.
+GH|Kelewele|S|1 cup|330|2|50|14|3|fried spicy|ripe plantain, ginger, pepper, oil|1|20|Spiced fried plantain cubes.
+GH|Chichinga|SD|2 skewers|330|32|6|19|1|meat spicy high_protein low_carb|beef, suya spice, onion|2|30|Ghanaian kebab, great with onions.
+GH|Rice water|B|1 bowl|260|5|52|3|1|dairy|rice, milk, sugar|1|25|Soft rice porridge, a gentle breakfast.
+SN|Thieboudienne|LD|1 plate|720|35|90|24|6|fish|broken rice, fish, tomato, cabbage, carrot, cassava|2|120|Senegal's national dish of fish and rice.
+SN|Yassa poulet|LD|1 plate|650|34|75|24|4|poultry|chicken, onion, lemon, mustard, rice|2|90|Chicken in tangy caramelised onion and lemon sauce.
+SN|Mafé|LD|1 plate|720|32|72|34|6|meat nuts|groundnut paste, beef, tomato, sweet potato, rice|2|90|Rich groundnut stew with rice.
+SN|Thiéré (millet couscous) with sauce|LD|1 plate|560|24|80|16|8|meat whole_grain|millet couscous, lamb, vegetables, beans|1|90|Steamed millet couscous with meat sauce.
+SN|Lakh (millet porridge with curd)|B|1 bowl|380|10|62|10|5|dairy sugary|millet, curd, sugar, vanilla|1|40|Sweet millet porridge with fermented milk.
+SN|Fataya|S|3 pastries|420|14|42|22|2|fish gluten fried|flour, fish or beef, onion, pepper|1|60|Fried turnovers filled with spiced fish.
+SN|Soupou kandja|LD|1 plate|620|28|75|24|8|fish shellfish meat|okra, palm oil, fish, shrimp, beef, rice|2|90|Okra and palm oil sauce over rice.
+SN|Accara with onion sauce|BS|5 fritters|380|13|42|18|7|fried spicy|black-eyed peas, onion, pepper, bread|1|40|Bean fritters in a bread roll with spicy onion sauce.
+CI|Attiéké with grilled fish|LD|1 plate|620|34|80|18|5|fish|fermented cassava couscous, fish, tomato, onion, pepper|2|40|Côte d'Ivoire's favourite: attiéké, fish and fresh salsa.
+CI|Garba|L|1 plate|680|28|85|26|5|fish fried spicy|attiéké, fried tuna, onion, pepper|1|20|Street classic of attiéké and fried tuna.
+CI|Alloco with grilled fish|LD|1 plate|560|28|60|24|4|fish fried|fried ripe plantain, fish, onion, pepper|1|30|Fried plantain with fish and chilli.
+CI|Foutou banane with sauce graine|LD|1 plate|760|26|90|34|7|meat fish|plantain foutou, palm nut sauce, beef, smoked fish|2|120|Pounded plantain with palm-nut sauce.
+CI|Kedjenou chicken|LD|1 plate|560|36|45|24|6|poultry spicy|chicken, tomato, onion, eggplant, rice or attiéké|2|90|Slow-cooked chicken in its own juices.
+CI|Sauce arachide with rice|LD|1 plate|700|28|78|32|6|meat nuts|groundnut paste, beef, tomato, rice|2|90|Peanut sauce with meat, served on rice.
+CI|Placali with sauce kopè|LD|1 plate|620|22|85|20|8|fish meat|fermented cassava dough, okra, palm oil, smoked fish|1|60|Smooth cassava paste with okra sauce.
+CI|Riz gras|LD|1 plate|660|26|88|22|4|meat|rice, tomato, beef, vegetables, oil|1|60|Rice cooked with meat and vegetables.
+CM|Ndolé with plantain|LD|1 plate|720|30|70|36|10|meat shellfish nuts high_fibre|bitterleaf, peanuts, beef, shrimp, ripe plantain|2|120|Cameroon's national dish of bitterleaf and peanuts.
+CM|Eru with water fufu|LD|1 plate|760|28|80|38|12|meat fish high_fibre|eru leaves, waterleaf, palm oil, beef, stockfish, cassava fufu|2|90|Rich vegetable dish from the South West.
+CM|Achu with yellow soup|LD|1 plate|680|22|90|26|7|meat|cocoyam, palm oil, limestone, beef, spices|2|120|Pounded cocoyam with spiced yellow soup.
+CM|Koki beans|LS|1 wrap|400|18|42|18|10|high_fibre high_protein|black-eyed beans, palm oil, pepper, cocoyam leaves|1|90|Steamed bean pudding in palm oil.
+CM|Poulet DG|LD|1 plate|760|36|70|36|5|poultry fried|chicken, ripe plantain, carrots, green beans, peppers|3|60|"Director General" chicken with fried plantain.
+CM|Beignets haricots|B|4 beignets + beans|560|18|78|20|10|gluten fried|puff-puff, beans in sauce, pap|1|60|Puff-puff with beans and pap, a popular breakfast.
+CM|Mbongo tchobi|LD|1 plate|560|34|50|24|5|fish spicy|fish, mbongo spice, plantain|2|60|Black spicy fish stew.
+CM|Grilled fish (poisson braisé)|D|1 fish|420|42|12|22|2|fish spicy high_protein low_carb|mackerel or tilapia, pepper, garlic, ginger|2|40|Roadside grilled fish with spicy marinade.
+KE|Ugali, sukuma wiki and beef stew|LD|1 plate|640|30|80|20|9|meat high_fibre|maize flour, collard greens, beef, tomato, onion|1|45|Kenya's everyday plate.
+KE|Nyama choma with kachumbari|D|250 g + salad|560|48|8|36|3|meat high_protein low_carb|goat or beef, tomato, onion, chilli|2|60|Grilled meat with a fresh tomato and onion salad.
+KE|Githeri|LD|1 plate|480|20|78|10|16|high_fibre|maize, beans, onion, tomato, potatoes|1|60|Maize and beans stew.
+KE|Pilau|LD|1 plate|640|26|88|20|3|meat|rice, beef, pilau masala, onion, garlic|2|60|Spiced rice with beef.
+KE|Chapati with bean stew|LD|2 chapati + stew|620|20|90|20|12|gluten high_fibre|wheat flour, beans, coconut milk, tomato|1|60|Soft layered flatbread with beans.
+KE|Mandazi and chai|BS|3 mandazi + 1 cup|480|8|62|22|2|gluten dairy fried sugary|flour, coconut milk, cardamom, tea, milk|1|40|Sweet fried bread with spiced milk tea.
+KE|Uji (millet porridge)|B|1 bowl|240|6|48|3|4|whole_grain|millet flour, water, lemon|1|15|Fermented millet porridge.
+KE|Mukimo|LD|1 plate|520|14|90|10|12|high_fibre|potatoes, peas, maize, pumpkin leaves|1|45|Mashed potato, peas and greens.
+KE|Matoke|LD|1 plate|480|12|80|12|7|meat|green bananas, tomato, onion, beef|1|45|Green banana stew.
+KE|Fried tilapia with ugali|LD|1 fish + ugali|720|42|80|24|5|fish fried|tilapia, maize flour, greens|2|45|Lakeside favourite from Kisumu.
+KE|Omena with ugali|LD|1 plate|560|34|70|14|5|fish high_protein|silver cyprinid fish, tomato, maize flour|1|40|Small lake fish, rich in protein and calcium.
+KE|Samosa (beef)|S|2 pieces|320|12|28|18|2|meat gluten fried|pastry, minced beef, onion, spices|1|60|Crisp triangles of spiced beef.
+ZA|Pap and boerewors with chakalaka|LD|1 plate|760|30|70|40|8|meat spicy|maize meal, boerewors sausage, beans, peppers, carrots|2|45|A braai favourite.
+ZA|Bobotie with yellow rice|D|1 plate|680|32|72|28|4|meat egg dairy|minced beef, curry spices, egg custard, raisins, rice|2|75|Cape Malay spiced mince bake.
+ZA|Bunny chow|LD|1/4 loaf|720|28|82|30|6|meat gluten spicy|white bread, mutton or bean curry|1|60|Durban curry served in a hollowed loaf.
+ZA|Umngqusho (samp and beans)|LD|1 plate|520|20|90|8|16|high_fibre|samp, sugar beans, onion|1|120|Mandela's favourite of samp and beans.
+ZA|Braai chicken with pap and salad|D|1 plate|680|42|62|26|5|poultry|chicken, maize meal, tomato, onion|2|60|Grilled chicken with stiff pap.
+ZA|Biltong|S|50 g|150|28|1|4|0|meat high_protein low_carb high_salt|dried beef, vinegar, coriander|2|0|Air-dried spiced meat snack.
+ZA|Vetkoek with mince|LS|1 piece|520|20|50|26|2|meat gluten fried|flour, minced beef, onion|1|60|Fried bread filled with savoury mince.
+ZA|Morogo with pap|LD|1 plate|420|12|72|8|9|high_fibre|wild spinach, onion, maize meal|1|30|African greens with maize porridge.
+ZA|Mabele porridge|B|1 bowl|260|7|50|3|5|whole_grain dairy|sorghum, milk, sugar|1|20|Sorghum breakfast porridge.
+EG|Koshari|LD|1 plate|680|22|120|14|14|gluten high_fibre|rice, lentils, macaroni, chickpeas, tomato sauce, fried onions|1|60|Egypt's beloved rice, lentil and pasta dish.
+EG|Ful medames with bread|B|1 bowl + 1 bread|460|20|62|14|14|gluten high_fibre|fava beans, olive oil, cumin, lemon, baladi bread|1|20|Stewed fava beans, the classic breakfast.
+EG|Ta'ameya (Egyptian falafel)|BS|4 pieces + bread|480|16|52|22|10|gluten fried|fava beans, herbs, sesame, bread|1|30|Green fava bean falafel.
+EG|Molokhia with chicken and rice|LD|1 plate|620|38|72|18|6|poultry|jute leaves, garlic, coriander, chicken, rice|2|60|Garlicky jute-leaf soup.
+EG|Mahshi|LD|6 pieces|420|10|70|12|8|light|vegetables, rice, tomato, herbs|1|90|Vegetables stuffed with herbed rice.
+EG|Fattah|D|1 plate|820|38|90|32|4|meat gluten|rice, bread, lamb, garlic vinegar sauce|2|90|Festive layers of bread, rice and meat.
+EG|Hawawshi|LD|1 piece|620|28|48|34|3|meat gluten spicy|minced beef, onion, peppers, bread|1|40|Spiced meat baked in bread.
+ET|Shiro with injera|LD|1 plate|520|20|82|12|14|high_fibre|chickpea flour, berbere, onion, teff injera|1|30|Smooth spiced chickpea stew; vegan on fasting days.
+ET|Doro wat with injera|D|1 plate|720|40|70|30|10|poultry egg spicy|chicken, egg, berbere, niter kibbeh, teff injera|2|180|Festive spicy chicken stew.
+ET|Misir wat with injera|LD|1 plate|540|24|86|10|18|high_fibre|red lentils, berbere, onion, teff injera|1|40|Spicy red lentil stew.
+ET|Beyaynetu|LD|1 platter|620|24|95|16|22|high_fibre|teff injera, lentils, split peas, cabbage, greens|1|90|Colourful vegan platter for fasting days.
+ET|Tibs|LD|1 plate|560|38|20|36|3|meat spicy high_protein|beef or lamb, onion, rosemary, peppers|2|30|Sautéed meat with peppers.
+ET|Kitfo|D|1 plate|640|36|30|42|3|meat dairy|minced beef, mitmita, niter kibbeh, ayib cheese|3|20|Minced beef with spiced butter.
+ET|Firfir|B|1 plate|460|12|70|14|8|spicy|shredded injera, berbere, onion, butter|1|20|Shredded injera breakfast.
+ET|Genfo|B|1 bowl|420|9|62|16|6|dairy|barley flour, butter, berbere|1|20|Thick barley porridge.
+MA|Chicken tagine with olives and lemon|D|1 plate|620|38|40|34|6|poultry gluten|chicken, preserved lemon, olives, onion, spices, bread|2|90|Slow-cooked chicken with lemon and olives.
+MA|Couscous with seven vegetables|L|1 plate|640|24|95|16|12|meat gluten high_fibre|couscous, lamb, carrots, turnips, courgette, chickpeas|2|120|Friday couscous with vegetables.
+MA|Harira|D|1 bowl|300|14|40|8|8|gluten high_fibre|lentils, chickpeas, tomato, herbs, vermicelli|1|60|Hearty tomato, lentil and chickpea soup.
+MA|Msemen with honey|B|2 pieces|420|8|60|16|2|gluten sugary|flour, semolina, butter, honey|1|60|Flaky square pancakes.
+MA|Bissara|BD|1 bowl|320|16|42|10|14|high_fibre|split fava beans, olive oil, cumin, garlic|1|45|Creamy fava bean soup.
+MA|Kefta tagine with eggs|D|1 plate|620|36|20|42|4|meat egg gluten|minced beef, tomato, eggs, spices, bread|2|45|Meatballs in tomato sauce with eggs.
+MA|Zaalouk|LS|1 bowl|180|3|16|12|6|light|eggplant, tomato, garlic, olive oil|1|40|Smoky aubergine salad.
+GB|Full English breakfast|B|1 plate|850|40|50|52|8|pork egg gluten high_salt|bacon, sausage, eggs, baked beans, mushrooms, tomato, toast|2|25|The weekend classic.
+GB|Porridge with berries|B|1 bowl|320|11|52|8|7|dairy whole_grain low_gi|rolled oats, milk, berries|1|10|Warm oats with fruit.
+GB|Beans on toast|BL|2 slices + 1 tin half|380|16|62|6|12|gluten high_fibre|baked beans, wholemeal bread|1|10|Quick, cheap and filling.
+GB|Fish and chips|LD|1 portion|950|38|95|48|8|fish gluten fried|cod, batter, potatoes|2|30|Battered cod with chips.
+GB|Shepherd's pie|D|1 portion|560|28|45|28|6|meat dairy|lamb mince, onion, carrots, peas, mashed potato|2|75|Lamb mince topped with mash.
+GB|Roast chicken with vegetables|D|1 plate|620|42|50|26|8|poultry gluten|chicken, potatoes, carrots, broccoli, gravy|2|90|Sunday roast.
+GB|Chicken tikka masala with rice|D|1 plate|780|38|80|32|5|poultry dairy spicy|chicken, yoghurt, tomato, cream, spices, rice|2|60|Britain's favourite curry.
+GB|Jacket potato with beans and cheese|L|1 potato|520|20|78|14|11|dairy high_fibre|potato, baked beans, cheddar|1|60|Baked potato with filling.
+GB|Ploughman's lunch|L|1 plate|680|26|60|38|6|dairy gluten|bread, cheddar, pickle, apple, salad|1|10|Bread, cheese and pickle.
+GB|Bangers and mash|D|1 plate|720|26|60|42|6|pork dairy high_salt|sausages, mashed potato, onion gravy, peas|1|40|Sausages with mash and gravy.
+GB|Lentil soup with bread|LD|1 bowl + 1 roll|420|20|66|8|14|gluten high_fibre|red lentils, carrots, onion, stock, bread|1|40|Simple warming soup.
+GB|Scrambled eggs on toast|B|2 eggs + 2 slices|420|22|34|22|4|egg dairy gluten|eggs, butter, wholemeal toast|1|10|Soft scrambled eggs.
+US|Pancakes with syrup|B|3 pancakes|560|12|90|16|2|gluten dairy egg sugary|flour, milk, eggs, butter, maple syrup|1|20|Fluffy American pancakes.
+US|Oatmeal with banana and nuts|B|1 bowl|380|12|58|12|8|nuts whole_grain low_gi|oats, milk or water, banana, walnuts|1|10|Hearty oatmeal.
+US|Scrambled eggs, toast and fruit|B|1 plate|430|22|42|18|5|egg gluten dairy|eggs, toast, butter, orange|1|10|Simple protein breakfast.
+US|Cheeseburger and fries|LD|1 burger + medium fries|1050|38|100|54|7|meat gluten dairy fried high_salt|beef patty, bun, cheese, potatoes|2|25|Diner classic.
+US|Grilled chicken salad|LD|1 large bowl|420|38|18|22|7|poultry high_protein low_carb light|chicken breast, lettuce, tomato, cucumber, olive oil|2|20|Lean and fresh.
+US|Turkey sandwich|L|1 sandwich|430|28|44|14|5|poultry gluten|turkey, whole-wheat bread, lettuce, tomato, mustard|1|10|Deli-style sandwich.
+US|Mac and cheese|LD|1 bowl|620|22|65|30|3|dairy gluten|macaroni, cheddar, milk, butter|1|30|Comfort food.
+US|Chili con carne|D|1 bowl|520|34|38|24|12|meat high_fibre spicy|beef, kidney beans, tomato, chilli, onion|1|60|Beef and bean chili.
+US|Grilled salmon with quinoa|D|1 plate|620|40|48|28|6|fish high_protein|salmon, quinoa, broccoli, lemon|3|30|Omega-3 rich dinner.
+US|Greek yogurt parfait|BS|1 cup|320|18|42|8|4|dairy nuts|Greek yogurt, granola, berries, honey|2|5|Layers of yogurt, fruit and granola.
+US|Pepperoni pizza|LD|2 slices|600|24|66|26|4|pork gluten dairy high_salt|pizza dough, cheese, pepperoni, tomato sauce|2|20|Takeaway favourite.
+US|Black bean burrito bowl|LD|1 bowl|620|24|90|18|18|dairy high_fibre|rice, black beans, corn, salsa, cheese, avocado|1|25|Tex-Mex bowl.
+CA|Poutine|LS|1 portion|740|20|80|38|6|dairy fried|fries, cheese curds, gravy|1|25|Quebec's fries with curds and gravy.
+CA|Tourtière|D|1 slice|560|22|38|36|3|pork meat gluten|pork, beef, potato, spices, pastry|2|90|Québécois meat pie.
+CA|Pea soup|LD|1 bowl|320|18|44|8|14|pork high_fibre|yellow split peas, ham, onion, carrot|1|120|Thick split pea soup.
+CA|Salmon with wild rice|D|1 plate|600|38|50|24|5|fish high_protein|salmon, wild rice, green beans|3|40|West-coast salmon dinner.
+CA|Maple oatmeal|B|1 bowl|340|10|60|7|7|whole_grain|oats, maple syrup, apple, cinnamon|1|10|Oats with a touch of maple.
+CA|Peameal bacon sandwich|BL|1 sandwich|520|30|42|24|2|pork gluten high_salt|peameal bacon, bun, mustard|2|15|Toronto classic.
+FR|Croissant and café au lait|B|1 croissant + 1 cup|380|9|36|22|2|gluten dairy|croissant, coffee, milk|1|5|Parisian breakfast.
+FR|Quiche lorraine|LD|1 slice|520|18|28|38|1|pork egg dairy gluten|eggs, cream, bacon, pastry|2|60|Savoury custard tart.
+FR|Ratatouille with bread|LD|1 bowl|300|6|36|14|9|gluten light|aubergine, courgette, peppers, tomato, olive oil|1|60|Provençal vegetable stew.
+FR|Coq au vin|D|1 plate|620|42|20|34|3|poultry pork alcohol|chicken, red wine, mushrooms, bacon, onions|3|120|Chicken braised in wine.
+FR|Salade niçoise|L|1 bowl|460|28|20|30|6|fish egg low_carb|tuna, eggs, green beans, potatoes, olives, tomato|2|20|Hearty salad from Nice.
+FR|Steak frites|D|1 plate|880|44|60|50|5|meat fried|beef steak, fries, butter|3|25|Bistro classic.
+FR|Crêpes|BS|2 crêpes|420|12|56|16|2|gluten egg dairy sugary|flour, eggs, milk, sugar, jam|1|20|Thin pancakes.
+FR|French onion soup|D|1 bowl|420|16|40|20|4|dairy gluten|onions, stock, bread, gruyère|1|75|Onion soup under melted cheese.
+IT|Spaghetti al pomodoro|LD|1 plate|520|16|88|12|6|gluten|spaghetti, tomato, garlic, basil, olive oil|1|20|Simple tomato pasta.
+IT|Spaghetti carbonara|LD|1 plate|760|28|80|36|3|pork egg dairy gluten|spaghetti, guanciale, eggs, pecorino|2|20|Roman egg and pork pasta.
+IT|Margherita pizza|LD|1/2 pizza|620|24|80|22|4|gluten dairy|dough, tomato, mozzarella, basil|1|20|Neapolitan classic.
+IT|Mushroom risotto|D|1 plate|580|14|78|22|3|dairy alcohol|arborio rice, mushrooms, parmesan, butter, white wine|2|40|Creamy rice with mushrooms.
+IT|Minestrone|LD|1 bowl|300|12|44|8|10|gluten high_fibre light|beans, vegetables, pasta, tomato|1|50|Vegetable and bean soup.
+IT|Lasagne|D|1 portion|720|36|56|38|4|meat dairy gluten|pasta sheets, beef ragù, béchamel, cheese|2|90|Layered pasta bake.
+IT|Caprese salad|LS|1 plate|340|18|8|26|2|dairy low_carb|mozzarella, tomato, basil, olive oil|2|10|Tomato and mozzarella.
+IT|Pasta e fagioli|LD|1 bowl|460|20|70|10|14|gluten high_fibre|pasta, borlotti beans, tomato, garlic|1|45|Pasta and bean soup.
+DE|Bratwurst with sauerkraut and potatoes|LD|1 plate|720|26|50|46|7|pork high_salt|bratwurst, sauerkraut, potatoes, mustard|1|30|German sausage plate.
+DE|Schnitzel with potato salad|LD|1 plate|820|38|60|46|4|pork gluten egg fried|pork cutlet, breadcrumbs, potatoes, vinegar dressing|2|40|Breaded cutlet.
+DE|Muesli with yoghurt|B|1 bowl|380|14|56|10|7|dairy nuts whole_grain|oats, nuts, dried fruit, yoghurt|1|5|Bircher-style breakfast.
+DE|Abendbrot (rye bread with cheese)|D|3 slices + toppings|480|22|50|20|9|gluten dairy whole_grain|rye bread, cheese, cucumber, butter|1|5|Traditional cold supper.
+DE|Lentil stew (Linseneintopf)|LD|1 bowl|460|24|56|14|16|pork high_fibre|lentils, carrots, potatoes, sausage|1|60|Hearty lentil stew.
+DE|Käsespätzle|D|1 plate|760|26|80|36|3|dairy egg gluten|egg noodles, cheese, onions|1|30|Cheesy egg noodles.
+ES|Paella|LD|1 plate|620|30|78|20|3|shellfish poultry|rice, saffron, chicken, prawns, peppers|3|60|Saffron rice from Valencia.
+ES|Spanish omelette (tortilla)|BL|1 slice|420|14|30|28|3|egg|eggs, potatoes, onion, olive oil|1|40|Potato and egg omelette.
+ES|Gazpacho|LS|1 bowl|180|3|16|12|4|gluten light|tomato, cucumber, pepper, olive oil, bread|1|15|Chilled tomato soup.
+ES|Lentejas (lentil stew)|LD|1 bowl|480|24|60|16|15|pork high_fibre|lentils, chorizo, potatoes, carrots|1|60|Spanish lentil stew.
+ES|Pan con tomate|BS|2 slices|280|7|40|10|3|gluten|bread, tomato, garlic, olive oil|1|5|Catalan tomato bread.
+IN|Idli with sambar|B|3 idli + 1 bowl|380|14|70|5|9|light|rice, urad dal, lentils, vegetables, tamarind|1|30|Steamed rice cakes with lentil soup.
+IN|Masala dosa|BL|1 dosa|480|10|70|18|6|dairy|rice, urad dal, potato, onion, ghee|1|40|Crisp crêpe with spiced potato.
+IN|Poha|B|1 plate|320|7|52|10|3|nuts|flattened rice, onion, peanuts, turmeric, curry leaves|1|20|Light flattened-rice breakfast.
+IN|Aloo paratha with curd|B|2 parathas + curd|620|16|80|26|7|gluten dairy|wheat flour, potato, ghee, yoghurt|1|40|Stuffed flatbread.
+IN|Dal tadka with rice|LD|1 plate|520|20|86|10|12|high_fibre|toor dal, rice, ghee, cumin, garlic|1|40|Everyday lentils and rice.
+IN|Rajma chawal|LD|1 plate|560|20|92|10|15|high_fibre|kidney beans, tomato, onion, rice|1|60|Kidney bean curry with rice.
+IN|Chole bhature|LD|1 plate|820|22|100|38|14|gluten fried high_fibre|chickpeas, spices, fried bread|1|60|Spicy chickpeas with puffed bread.
+IN|Chicken biryani|LD|1 plate|720|34|86|26|4|poultry dairy spicy|basmati rice, chicken, yoghurt, spices, fried onions|2|90|Layered spiced rice.
+IN|Palak paneer with roti|D|1 bowl + 2 roti|560|24|52|28|9|dairy gluten|spinach, paneer, cream, wheat roti|1|40|Spinach with cottage cheese.
+IN|Chicken curry with rice|D|1 plate|680|36|78|24|5|poultry spicy|chicken, onion, tomato, spices, rice|2|60|Home-style chicken curry.
+IN|Khichdi|LD|1 bowl|420|16|70|8|8|dairy light|rice, moong dal, turmeric, ghee|1|30|Gentle rice and lentil porridge.
+IN|Upma|B|1 plate|360|9|54|12|4|gluten nuts|semolina, vegetables, mustard seeds, cashews|1|20|Savoury semolina.
+IN|Fish curry with rice|D|1 plate|620|32|76|20|4|fish spicy|fish, coconut, tamarind, spices, rice|2|45|Coastal coconut fish curry.
+IN|Vegetable samosa|S|2 pieces|300|6|36|15|4|gluten fried|pastry, potato, peas, spices|1|60|Crisp potato pastries.
+IN|Dhokla|BS|4 pieces|220|9|34|5|4|light|gram flour, yoghurt, mustard seeds|1|30|Steamed gram-flour cake.
+IN|Egg curry with roti|D|1 bowl + 2 roti|520|22|50|24|6|egg gluten spicy|eggs, onion, tomato, spices, roti|1|30|Boiled eggs in masala.
+CN|Congee with egg|B|1 bowl|260|10|40|6|1|egg light|rice, ginger, egg, spring onion|1|60|Soft rice porridge.
+CN|Pork baozi|BS|2 buns|420|16|52|16|2|pork gluten soy|wheat dough, pork, ginger, soy sauce|1|60|Steamed stuffed buns.
+CN|Egg fried rice|LD|1 plate|560|16|80|18|2|egg soy|rice, eggs, spring onion, soy sauce|1|15|Classic wok rice.
+CN|Kung pao chicken with rice|D|1 plate|720|36|80|28|4|poultry nuts soy spicy|chicken, peanuts, chillies, Sichuan pepper, rice|2|25|Spicy chicken with peanuts.
+CN|Mapo tofu with rice|D|1 plate|620|26|70|26|4|pork soy spicy|tofu, minced pork, doubanjiang, Sichuan pepper, rice|1|25|Spicy tofu with minced pork.
+CN|Steamed fish with ginger|D|1 plate|380|40|6|20|1|fish soy low_carb high_protein|fish, ginger, spring onion, soy sauce|2|25|Cantonese steamed fish.
+CN|Pork and cabbage dumplings (jiaozi)|LD|12 dumplings|560|24|66|20|4|pork gluten soy|wheat wrappers, pork, cabbage, ginger|1|60|Boiled dumplings.
+CN|Beef noodle soup|LD|1 bowl|620|34|70|20|4|meat gluten soy|wheat noodles, beef, broth, bok choy|2|120|Hearty noodle soup.
+CN|Tomato and egg stir-fry with rice|LD|1 plate|480|16|68|16|3|egg|tomatoes, eggs, sugar, rice|1|15|Home-cooking favourite.
+CN|Stir-fried bok choy with garlic|LD|1 plate|120|4|8|8|4|light low_carb|bok choy, garlic, oil|1|10|Quick green vegetable side.
+PH|Chicken adobo with rice|LD|1 plate|680|36|72|26|2|poultry soy|chicken, soy sauce, vinegar, garlic, rice|1|60|Philippine national dish.
+PH|Sinigang na baboy|LD|1 bowl + rice|560|28|60|22|5|pork|pork, tamarind, kangkong, radish, rice|1|60|Sour tamarind soup.
+PH|Pancit canton|LD|1 plate|520|20|70|18|4|gluten shellfish poultry soy|egg noodles, chicken, shrimp, vegetables|1|30|Stir-fried noodles.
+PH|Tapsilog|B|1 plate|720|36|70|30|2|meat egg soy|cured beef, garlic rice, fried egg|1|20|Beef, garlic rice and egg.
+PH|Arroz caldo|BD|1 bowl|380|20|52|10|2|poultry egg light|rice, chicken, ginger, egg|1|45|Ginger chicken rice porridge.
+PH|Champorado|B|1 bowl|360|8|66|8|4|dairy sugary|glutinous rice, cocoa, milk|1|25|Chocolate rice porridge.
+PH|Kare-kare|D|1 plate + rice|760|30|62|42|6|meat nuts shellfish|oxtail, peanut sauce, vegetables, shrimp paste|2|180|Peanut stew with oxtail.
+PH|Tinola|LD|1 bowl|320|28|14|16|3|poultry light|chicken, ginger, green papaya, chilli leaves|1|45|Gingery chicken soup.
+SA|Chicken kabsa|LD|1 plate|760|38|90|26|4|poultry|basmati rice, chicken, tomato, kabsa spices, nuts|2|90|Saudi spiced rice and chicken.
+SA|Lamb mandi|LD|1 plate|860|42|90|36|3|meat|rice, lamb, mandi spices|3|180|Smoky slow-cooked lamb on rice.
+SA|Shakshuka with bread|B|1 pan + bread|440|20|36|24|6|egg gluten|eggs, tomato, peppers, onion, bread|1|25|Eggs poached in tomato.
+SA|Ful with bread|B|1 bowl + bread|440|18|60|14|14|gluten high_fibre|fava beans, olive oil, cumin, bread|1|20|Breakfast beans.
+SA|Hummus with pita|LS|1 bowl + 1 pita|420|14|50|18|9|sesame gluten|chickpeas, tahini, lemon, olive oil, pita|1|10|Chickpea dip.
+SA|Jareesh|LD|1 bowl|480|22|62|14|10|meat dairy whole_grain|cracked wheat, chicken or lamb, yoghurt|1|90|Comforting cracked-wheat porridge.
+SA|Dates and laban|S|5 dates + 1 cup|300|9|58|4|5|dairy sugary|dates, buttermilk|1|0|Traditional quick snack.
+AE|Chicken machboos|LD|1 plate|760|38|88|26|4|poultry|rice, chicken, loomi, spices|2|90|Emirati spiced rice.
+AE|Harees|LD|1 bowl|460|26|58|12|7|meat whole_grain|wheat, meat, ghee|1|180|Slow-cooked wheat and meat.
+AE|Chicken shawarma wrap|LD|1 wrap|560|32|50|24|4|poultry gluten sesame|chicken, garlic sauce, pickles, flatbread|1|20|Street-food wrap.
+AE|Balaleet|B|1 plate|480|12|70|16|2|egg gluten sugary|vermicelli, saffron, cardamom, egg|1|25|Sweet vermicelli with omelette.
+AE|Luqaimat|S|6 pieces|360|5|56|13|1|gluten fried sugary|flour, yeast, date syrup|1|60|Sweet dumplings with date syrup.
+BR|Arroz e feijão with grilled chicken|LD|1 plate|680|40|86|16|12|poultry high_fibre|rice, black beans, chicken, salad|1|60|Brazil's daily rice and beans.
+BR|Feijoada|LD|1 plate|920|42|80|46|16|pork meat high_fibre high_salt|black beans, pork, sausage, rice, collards, orange|2|180|Black bean and pork stew.
+BR|Pão de queijo|BS|4 pieces|300|8|34|14|0|dairy egg|cassava starch, cheese, eggs|1|40|Cheese bread balls.
+BR|Moqueca|D|1 plate|620|36|60|26|4|fish|fish, coconut milk, peppers, tomato, palm oil, rice|2|50|Bahian fish stew.
+BR|Açaí bowl|BS|1 bowl|420|6|70|14|8|sugary|açaí, banana, granola|2|5|Frozen açaí with toppings.
+BR|Tapioca crepe with cheese|B|1 crepe|320|12|46|10|1|dairy|tapioca starch, cheese|1|10|Gluten-free crepe.
+BR|Coxinha|S|2 pieces|440|16|44|22|2|poultry gluten fried|chicken, dough, cream cheese|1|60|Fried chicken croquettes.
+MX|Tacos al pastor|LD|3 tacos|560|30|52|26|5|pork spicy|corn tortillas, pork, pineapple, onion, coriander|1|30|Marinated pork tacos.
+MX|Chilaquiles with egg|B|1 plate|560|20|52|30|6|egg dairy fried spicy|tortilla chips, salsa, egg, cheese, cream|1|20|Tortilla chips in salsa.
+MX|Huevos rancheros|B|1 plate|480|22|42|24|9|egg spicy|eggs, tortillas, salsa, beans|1|20|Ranch-style eggs.
+MX|Chicken enchiladas|D|3 enchiladas|640|36|56|30|6|poultry dairy spicy|tortillas, chicken, chilli sauce, cheese|2|45|Rolled tortillas in sauce.
+MX|Pozole|D|1 bowl|460|30|40|18|8|pork spicy|hominy, pork, chilli, radish, cabbage|2|180|Hominy and pork soup.
+MX|Black bean soup|LD|1 bowl|320|16|48|6|16|high_fibre light|black beans, onion, garlic, epazote|1|45|Simple bean soup.
+MX|Guacamole with tortilla chips|S|1/2 cup + chips|380|5|34|26|10|fried|avocado, lime, onion, chilli, tortilla chips|1|10|Fresh avocado dip.
+MX|Chicken tamales|LD|2 tamales|520|20|56|24|5|poultry|masa, chicken, salsa verde, corn husks|1|120|Steamed corn-dough parcels.
+JM|Ackee and saltfish|B|1 plate|520|26|30|34|6|fish high_salt|ackee, salted cod, onion, peppers, fried dumpling|2|40|Jamaica's national breakfast.
+JM|Jerk chicken with rice and peas|LD|1 plate|760|42|78|30|8|poultry spicy|chicken, jerk spices, rice, kidney beans, coconut milk|2|90|Spicy grilled chicken with coconut rice and peas.
+JM|Curry goat with rice|D|1 plate|780|40|76|34|5|meat spicy|goat, curry, potatoes, rice|2|120|Slow-cooked curried goat.
+JM|Brown stew fish|D|1 plate|560|38|30|30|4|fish|snapper, onion, peppers, carrots|2|45|Fried fish in brown sauce.
+JM|Callaloo with boiled food|B|1 plate|420|10|78|8|10|high_fibre|callaloo, yam, green banana, dumplings|1|30|Steamed greens with yam and banana.
