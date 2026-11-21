@@ -1,3 +1,4 @@
+import { aiOff, aiOffResponse } from './ai_switch.ts'
 // Supabase Edge Function: food-recipe (Premium)
 //   { food_id }  The recipe and cooking steps for a food, plus short cooking videos.
 // A recipe is made once by AI and then kept for everyone who can see that food. The food is read with the person's
@@ -74,6 +75,7 @@ async function findVideos(q: string): Promise<Video[]> {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  if (await aiOff('cdmfood')) return aiOffResponse(cors)
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
   try {
     const url = Deno.env.get('SUPABASE_URL')!

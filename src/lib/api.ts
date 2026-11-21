@@ -40,6 +40,7 @@ export async function getProfile(): Promise<ProfileRow | null> {
   // the account was made before the profile trigger existed
   const ins = await supabase.from('profiles').insert({ id: user.id, language: currentLang() }).select(PROFILE_COLS).single()
   fail(ins.error)
+  if (!ins.data) return null
   return profileRow(ins.data)
 }
 export async function saveProfile(id: string, patch: Partial<Omit<ProfileRow, 'id' | 'premium_until'>>) {

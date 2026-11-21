@@ -1,3 +1,4 @@
+import { aiOff, aiOffResponse } from './ai_switch.ts'
 // Supabase Edge Function: food-ai ("Ask AI" in CDM Food)
 // Changes the person's meal plan on request (diet, health reasons, budget, taste), adds foods that are not in the
 // catalogue, and answers food and nutrition questions. Everything runs with the person's own login, so row-level
@@ -334,6 +335,7 @@ const TOOLS: { def: Record<string, unknown>; run: (c: Ctx, i: Record<string, unk
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  if (await aiOff('cdmfood')) return aiOffResponse(cors)
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
   try {
     const body = await req.json().catch(() => ({}))
