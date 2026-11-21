@@ -1,3 +1,4 @@
+import Family from '../components/Family'
 import { useEffect, useState } from 'react'
 import { AiRobot } from '../components/AiRobot'
 import { Alert } from '../components/ui'
@@ -90,6 +91,7 @@ export default function Landing() {
       <Features />
       <Pricing onStart={() => { setMode('up'); document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }) }} />
       <Faq />
+      <Family self="cdmfood" />
       <section className="bg-brand-700 py-12 text-center text-white">
         <h2 className="text-3xl font-extrabold">{t('Plan your first week in two minutes')}</h2>
         <p className="mx-auto mt-2 max-w-xl text-white/85">{t('Free to start. No card needed.')}</p>
